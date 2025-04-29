@@ -57,13 +57,13 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
         <DialogHeader>
           <div
             className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${
-              success ? "bg-green-100" : "bg-green-100"
+              success ? "bg-green-100" : "bg-red-100"
             }`}
           >
             {success ? (
               <Check className="h-6 w-6 text-green-600" />
             ) : (
-              <AlertCircle className="h-6 w-6 text-green-600" />
+              <AlertCircle className="h-6 w-6 text-red-600" />
             )}
           </div>
           <DialogTitle className="text-center text-lg font-semibold text-gray-900 mt-4">
@@ -75,7 +75,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
 
           {/* Mostra os erros corretamente */}
           {!success && errorMessage && (
-            <p className="text-green-500 text-sm mt-2 text-center line-clamp-2">
+            <p className="text-red-500 text-sm mt-2 text-center line-clamp-2">
               Motivo: {errorMessage}
             </p>
           )}
@@ -87,7 +87,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
             className={
               success
                 ? "bg-green-700 hover:bg-green-600"
-                : "bg-green-600 hover:bg-green-700"
+                : "bg-red-600 hover:bg-red-700"
             }
           >
             {success ? "Ok" : "Tentar Novamente"}

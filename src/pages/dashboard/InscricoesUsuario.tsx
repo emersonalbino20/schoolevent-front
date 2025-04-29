@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -20,8 +20,11 @@ import { getUserData } from "@/hooks/AuthLocal";
 
 const InscricoesUsuario = () => {
   const usuario = getUserData();
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
+  useEffect(() => {
+    usuario.tipo === "administrador" && navigate("*");
+  }, []);
   // Buscar inscrições do usuário
   const {
     data: inscricoes,
@@ -37,7 +40,7 @@ const InscricoesUsuario = () => {
   const { mutate: enviarComentario, isPending: enviandoComentario } =
     usePostComentarios();
 
-  // Verificar se evento já ocorreu
+  // Verificar se actividade já ocorreu
   const isEventoEncerrado = (dataFim) => {
     if (!dataFim) return false;
     const hoje = new Date();
@@ -59,26 +62,26 @@ const InscricoesUsuario = () => {
   };
 
   // Manipular mudança no texto do comentário
-  const handleComentarioChange = (eventoId, texto) => {
+  const handleComentarioChange = (actividadeId, texto) => {
     setComentarios({
       ...comentarios,
-      [eventoId]: texto,
+      [actividadeId]: texto,
     });
   };
 
   // Enviar comentário
-  const handleEnviarComentario = (eventoId) => {
+  const handleEnviarComentario = (actividadeId) => {
     const comentarioData = {
       usuario_id: usuario.usuario_id,
-      evento_id: eventoId,
-      texto: comentarios[eventoId] || "",
+      actividade_id: actividadeId,
+      texto: comentarios[actividadeId] || "",
     };
 
     enviarComentario(comentarioData, {
       onSuccess: () => {
         setComentarioStatus({
           ...comentarioStatus,
-          [eventoId]: {
+          [actividadeId]: {
             success: true,
             error: false,
             message: "Comentário enviado com sucesso!",
@@ -87,13 +90,13 @@ const InscricoesUsuario = () => {
         // Limpar o campo de comentário
         setComentarios({
           ...comentarios,
-          [eventoId]: "",
+          [actividadeId]: "",
         });
       },
       onError: (err) => {
         setComentarioStatus({
           ...comentarioStatus,
-          [eventoId]: {
+          [actividadeId]: {
             success: false,
             error: true,
             message:
@@ -121,7 +124,7 @@ const InscricoesUsuario = () => {
                 className="h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 object-contain"
                 alt="Logo"
               />
-              <span>RadlukEventos</span>
+              <span>RadlukActividades</span>
             </div>
           </div>
         </div>
@@ -139,7 +142,7 @@ const InscricoesUsuario = () => {
         </Button>
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-          Meus Eventos
+          Meus Actividades
         </h1>
 
         {isLoading ? (
@@ -165,8 +168,8 @@ const InscricoesUsuario = () => {
               Nenhuma inscrição encontrada
             </AlertTitle>
             <AlertDescription className="text-blue-700">
-              Você ainda não está inscrito em nenhum evento. Explore os eventos
-              disponíveis e inscreva-se!
+              Você ainda não está inscrito em nenhum actividade. Explore os
+              actividades disponíveis e inscreva-se!
             </AlertDescription>
           </Alert>
         ) : (
@@ -176,23 +179,23 @@ const InscricoesUsuario = () => {
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 md:mb-0">
-                      {inscricao.evento.titulo}
+                      {inscricao.actividade.titulo}
                     </h2>
                     <div
                       className={`inline-flex ${
-                        isEventoEncerrado(inscricao.evento.data_fim)
+                        isEventoEncerrado(inscricao.actividade.data_fim)
                           ? "bg-gray-100 text-gray-800"
                           : "bg-green-100 text-green-800"
                       } rounded-full px-3 py-1 text-sm font-medium`}
                     >
-                      {isEventoEncerrado(inscricao.evento.data_fim)
+                      {isEventoEncerrado(inscricao.actividade.data_fim)
                         ? "Evento Encerrado"
                         : "Evento Ativo"}
                     </div>
                   </div>
 
                   <p className="text-gray-700 mb-6">
-                    {inscricao.evento.descricao}
+                    {inscricao.actividade.descricao}
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -201,8 +204,8 @@ const InscricoesUsuario = () => {
                       <div>
                         <p className="font-medium text-gray-700">Data</p>
                         <p>
-                          De {formatDate(inscricao.evento.data_inicio)} até{" "}
-                          {formatDate(inscricao.evento.data_fim)}
+                          De {formatDate(inscricao.actividade.data_inicio)} até{" "}
+                          {formatDate(inscricao.actividade.data_fim)}
                         </p>
                       </div>
                     </div>
@@ -212,8 +215,8 @@ const InscricoesUsuario = () => {
                       <div>
                         <p className="font-medium text-gray-700">Horário</p>
                         <p>
-                          {formatTime(inscricao.evento.data_inicio)} às{" "}
-                          {formatTime(inscricao.evento.data_fim)}
+                          {formatTime(inscricao.actividade.data_inicio)} às{" "}
+                          {formatTime(inscricao.actividade.data_fim)}
                         </p>
                       </div>
                     </div>
@@ -222,7 +225,7 @@ const InscricoesUsuario = () => {
                       <MapPin className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
                       <div>
                         <p className="font-medium text-gray-700">Local</p>
-                        <p>{inscricao.evento.local}</p>
+                        <p>{inscricao.actividade.local}</p>
                       </div>
                     </div>
 
@@ -231,8 +234,8 @@ const InscricoesUsuario = () => {
                       <div>
                         <p className="font-medium text-gray-700">Organizador</p>
                         <p>
-                          {inscricao.evento.criador.nome}{" "}
-                          {inscricao.evento.criador.sobrenome}
+                          {inscricao.actividade.criador.nome}{" "}
+                          {inscricao.actividade.criador.sobrenome}
                         </p>
                       </div>
                     </div>
@@ -251,19 +254,19 @@ const InscricoesUsuario = () => {
                   </div>
                 </div>
 
-                {isEventoEncerrado(inscricao.evento.data_fim) && (
+                {isEventoEncerrado(inscricao.actividade.data_fim) && (
                   <CardFooter className="bg-gray-50 p-6 border-t flex flex-col">
                     <div className="w-full mb-4">
                       <p className="font-medium text-gray-700 mb-2 flex items-center">
                         <MessageSquare className="h-5 w-5 text-green-600 mr-2" />
-                        Deixe seu comentário sobre o evento
+                        Deixe seu comentário sobre o actividade
                       </p>
                       <Textarea
-                        placeholder="Compartilhe sua experiência ou feedback sobre este evento..."
-                        value={comentarios[inscricao.evento.id] || ""}
+                        placeholder="Compartilhe sua experiência ou feedback sobre este actividade..."
+                        value={comentarios[inscricao.actividade.id] || ""}
                         onChange={(e) =>
                           handleComentarioChange(
-                            inscricao.evento.id,
+                            inscricao.actividade.id,
                             e.target.value
                           )
                         }
@@ -271,19 +274,19 @@ const InscricoesUsuario = () => {
                       />
                     </div>
 
-                    {comentarioStatus[inscricao.evento.id]?.success && (
+                    {comentarioStatus[inscricao.actividade.id]?.success && (
                       <Alert className="mb-4 bg-green-50 border-green-200">
                         <Check className="h-5 w-5 text-green-600" />
                         <AlertDescription className="text-green-700">
-                          {comentarioStatus[inscricao.evento.id].message}
+                          {comentarioStatus[inscricao.actividade.id].message}
                         </AlertDescription>
                       </Alert>
                     )}
 
-                    {comentarioStatus[inscricao.evento.id]?.error && (
+                    {comentarioStatus[inscricao.actividade.id]?.error && (
                       <Alert className="mb-4 bg-green-50 border-green-200">
                         <AlertDescription className="text-green-700">
-                          {comentarioStatus[inscricao.evento.id].message}
+                          {comentarioStatus[inscricao.actividade.id].message}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -291,10 +294,11 @@ const InscricoesUsuario = () => {
                     <Button
                       className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6"
                       onClick={() =>
-                        handleEnviarComentario(inscricao.evento.id)
+                        handleEnviarComentario(inscricao.actividade.id)
                       }
                       disabled={
-                        !comentarios[inscricao.evento.id] || enviandoComentario
+                        !comentarios[inscricao.actividade.id] ||
+                        enviandoComentario
                       }
                     >
                       {enviandoComentario ? (

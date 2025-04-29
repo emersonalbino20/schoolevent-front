@@ -4,15 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  useGetEventos,
-  usePutEvento,
-  usePostEventos,
-  usePostImagensEvento,
-} from "@/api/eventoQuery";
+  useGetActividades,
+  usePutActividade,
+  usePostActividades,
+  usePostImagensActividade,
+} from "@/api/actividadeQuery";
 import FeedbackDialog from "@/_components/FeedbackDialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { schemeEvento, schemeEventoUp } from "@/utils/validateForm";
+import { schemeActividade, schemeActividadeUp } from "@/utils/validateForm";
 import {
   Form,
   FormField,
@@ -43,8 +43,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const ManageEvents = () => {
-  const formEvento = useForm({
-    resolver: zodResolver(schemeEvento),
+  const formActividade = useForm({
+    resolver: zodResolver(schemeActividade),
     defaultValues: {
       titulo: "",
       descricao: "",
@@ -54,8 +54,8 @@ const ManageEvents = () => {
     },
   });
 
-  const formEventoUp = useForm({
-    resolver: zodResolver(schemeEventoUp),
+  const formActividadeUp = useForm({
+    resolver: zodResolver(schemeActividadeUp),
     defaultValues: {
       titulo: "",
       descricao: "",
@@ -78,7 +78,7 @@ const ManageEvents = () => {
   const [currentEventTitle, setCurrentEventTitle] = useState("");
 
   // Dados da API
-  const { data: eventosData } = useGetEventos();
+  const { data: actividadesData } = useGetActividades();
 
   // Estados para controlar o diálogo
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -88,33 +88,33 @@ const ManageEvents = () => {
 
   // Estados para o diálogo de confirmação de exclusão
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [eventoParaExcluir, setEventoParaExcluir] = useState(null);
+  const [actividadeParaExcluir, setActividadeParaExcluir] = useState(null);
 
-  const { mutate: mutateEvento } = usePostEventos();
-  const { mutate: putEvento } = usePutEvento();
-  const { mutate: postImagens } = usePostImagensEvento();
+  const { mutate: mutateActividade } = usePostActividades();
+  const { mutate: putActividade } = usePutActividade();
+  const { mutate: postImagens } = usePostImagensActividade();
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === "cadastrar") {
       setModoEdicao(false);
-      formEvento.reset();
+      formActividade.reset();
       setSelectedFiles([]);
       setPreviewImages([]);
     }
   };
 
   // Função para abrir o diálogo de confirmação
-  const openDeleteDialog = (evento) => {
-    setEventoParaExcluir(evento);
+  const openDeleteDialog = (actividade) => {
+    setActividadeParaExcluir(actividade);
     setDeleteDialogOpen(true);
   };
 
   // Função para confirmar a exclusão
   const confirmDelete = () => {
-    if (eventoParaExcluir) {
+    if (actividadeParaExcluir) {
       // Implementar exclusão aqui quando necessário
-      //handleSubmitPatchEvento(eventoParaExcluir.id);
+      //handleSubmitPatchActividade(actividadeParaExcluir.id);
     }
     setDeleteDialogOpen(false);
   };
@@ -126,10 +126,10 @@ const ManageEvents = () => {
     return data.toISOString().slice(0, 16);
   };
 
-  // Função para mostrar imagens do evento
-  const showEventImages = (evento) => {
-    setCurrentEventImages(evento.imagens || []);
-    setCurrentEventTitle(evento.titulo);
+  // Função para mostrar imagens do actividade
+  const showEventImages = (actividade) => {
+    setCurrentEventImages(actividade.imagens || []);
+    setCurrentEventTitle(actividade.titulo);
     setImageDialogOpen(true);
   };
 
@@ -155,16 +155,16 @@ const ManageEvents = () => {
     setPreviewImages(newPreviews);
   };
 
-  // Enviar imagens após o cadastro do evento
-  const uploadImages = (eventoId) => {
+  // Enviar imagens após o cadastro do actividade
+  const uploadImages = (actividadeId) => {
     if (selectedFiles.length === 0) return;
 
     const formData = new FormData();
     selectedFiles.forEach((file, index) => {
       formData.append("imagens", file);
-      formData.append("descricoes", `Imagem ${index + 1} do evento`);
+      formData.append("descricoes", `Imagem ${index + 1} do actividade`);
     });
-    formData.append("evento_id", eventoId);
+    formData.append("actividade_id", actividadeId);
     postImagens(formData, {
       onSuccess: () => {
         setIsSuccess(true);
@@ -181,18 +181,18 @@ const ManageEvents = () => {
     });
   };
 
-  function submitEvento(
+  function submitActividade(
     data: any,
     event: React.FormEvent<HTMLFormElement> | undefined
   ) {
     event?.preventDefault();
     if (modoEdicao) {
-      putEvento(data, {
+      putActividade(data, {
         onSuccess: (response) => {
           setIsSuccess(true);
-          setFeedbackMessage("O evento foi atualizado com sucesso!");
+          setFeedbackMessage("O actividade foi atualizado com sucesso!");
           setDialogOpen(true);
-          formEventoUp.reset();
+          formActividadeUp.reset();
           setActiveTab("listar");
         },
         onError: (error) => {
@@ -200,7 +200,7 @@ const ManageEvents = () => {
           setErro(error);
           setIsSuccess(false);
           setFeedbackMessage(
-            "Não foi possível atualizar o evento. Verifique seus dados e tente novamente."
+            "Não foi possível atualizar o actividade. Verifique seus dados e tente novamente."
           );
           setDialogOpen(true);
           setModoEdicao(true);
@@ -209,7 +209,7 @@ const ManageEvents = () => {
       });
       setModoEdicao(false);
     } else {
-      mutateEvento(
+      mutateActividade(
         {
           titulo: data.titulo,
           descricao: data.descricao,
@@ -221,17 +221,18 @@ const ManageEvents = () => {
         {
           onSuccess: (response) => {
             setIsSuccess(true);
-            setFeedbackMessage("O evento foi cadastrado com sucesso!");
+            setFeedbackMessage("O actividade foi cadastrado com sucesso!");
             setDialogOpen(true);
 
-            // Obter o ID do evento recém-criado e enviar as imagens
-            const eventoId =
-              response.data?.id || eventosData?.[eventosData.length - 1]?.id;
-            if (eventoId && selectedFiles.length > 0) {
-              uploadImages(eventoId);
+            // Obter o ID do actividade recém-criado e enviar as imagens
+            const actividadeId =
+              response.data?.id ||
+              actividadesData?.[actividadesData.length - 1]?.id;
+            if (actividadeId && selectedFiles.length > 0) {
+              uploadImages(actividadeId);
             }
 
-            formEvento.reset();
+            formActividade.reset();
             setActiveTab("listar");
           },
           onError: (error) => {
@@ -239,7 +240,7 @@ const ManageEvents = () => {
             setErro(error);
             setIsSuccess(false);
             setFeedbackMessage(
-              "Não foi possível cadastrar o evento. Verifique seus dados e tente novamente."
+              "Não foi possível cadastrar o actividade. Verifique seus dados e tente novamente."
             );
             setDialogOpen(true);
           },
@@ -252,17 +253,20 @@ const ManageEvents = () => {
     setDialogOpen(false);
   };
 
-  const iniciarEdicao = (evento) => {
+  const iniciarEdicao = (actividade) => {
     setModoEdicao(true);
-    formEventoUp.setValue("id", evento.id);
-    formEventoUp.setValue("titulo", evento.titulo);
-    formEventoUp.setValue("descricao", evento.descricao);
-    formEventoUp.setValue("local", evento.local);
-    formEventoUp.setValue(
+    formActividadeUp.setValue("id", actividade.id);
+    formActividadeUp.setValue("titulo", actividade.titulo);
+    formActividadeUp.setValue("descricao", actividade.descricao);
+    formActividadeUp.setValue("local", actividade.local);
+    formActividadeUp.setValue(
       "data_inicio",
-      formatarDataParaInput(evento.data_inicio)
+      formatarDataParaInput(actividade.data_inicio)
     );
-    formEventoUp.setValue("data_fim", formatarDataParaInput(evento.data_fim));
+    formActividadeUp.setValue(
+      "data_fim",
+      formatarDataParaInput(actividade.data_fim)
+    );
     setActiveTab("cadastrar");
 
     // Limpar imagens previamente selecionadas
@@ -290,7 +294,7 @@ const ManageEvents = () => {
     <div className="p-4 md:p-6 overflow-x-hidden">
       <div className="mb-4">
         <h1 className="text-xl font-bold text-gray-800 flex items-center">
-          <Calendar className="mr-2" /> Gerenciar Eventos Escolares
+          <Calendar className="mr-2" /> Gerenciar Actividades Escolares
         </h1>
       </div>
 
@@ -304,7 +308,7 @@ const ManageEvents = () => {
           }`}
           onClick={() => handleTabChange("cadastrar")}
         >
-          {modoEdicao ? "Editar Evento" : "Cadastrar Evento"}
+          {modoEdicao ? "Editar Actividade" : "Cadastrar Actividade"}
         </button>
         <button
           className={`py-2 px-4 font-medium ${
@@ -314,7 +318,7 @@ const ManageEvents = () => {
           }`}
           onClick={() => handleTabChange("listar")}
         >
-          Eventos Cadastrados
+          Actividades Cadastrados
         </button>
       </div>
 
@@ -323,27 +327,29 @@ const ManageEvents = () => {
         <Card>
           <CardHeader className="p-4">
             <CardTitle>
-              {modoEdicao ? "Editar Evento" : "Cadastrar Novo Evento"}
+              {modoEdicao ? "Editar Actividade" : "Cadastrar Novo Actividade"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             {!modoEdicao ? (
-              <Form {...formEvento}>
+              <Form {...formActividade}>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    formEvento.handleSubmit((data) => submitEvento(data, e))();
+                    formActividade.handleSubmit((data) =>
+                      submitActividade(data, e)
+                    )();
                   }}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEvento.control}
+                        control={formActividade.control}
                         name="titulo"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                              Título do Evento
+                              Título do Actividade
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -359,7 +365,7 @@ const ManageEvents = () => {
                     </div>
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEvento.control}
+                        control={formActividade.control}
                         name="descricao"
                         render={({ field }) => (
                           <FormItem>
@@ -370,7 +376,7 @@ const ManageEvents = () => {
                               <Textarea
                                 {...field}
                                 className="w-full p-2 border border-gray-300 rounded-md min-h-[100px]"
-                                placeholder="Descreva detalhes sobre o evento"
+                                placeholder="Descreva detalhes sobre o actividade"
                               />
                             </FormControl>
                             <FormMessage />
@@ -381,7 +387,7 @@ const ManageEvents = () => {
 
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEvento.control}
+                        control={formActividade.control}
                         name="local"
                         render={({ field }) => (
                           <FormItem>
@@ -403,7 +409,7 @@ const ManageEvents = () => {
 
                     <div>
                       <FormField
-                        control={formEvento.control}
+                        control={formActividade.control}
                         name="data_inicio"
                         render={({ field }) => (
                           <FormItem>
@@ -425,7 +431,7 @@ const ManageEvents = () => {
 
                     <div>
                       <FormField
-                        control={formEvento.control}
+                        control={formActividade.control}
                         name="data_fim"
                         render={({ field }) => (
                           <FormItem>
@@ -449,7 +455,7 @@ const ManageEvents = () => {
                   {/* Área de upload de imagens - mostrada apenas em modo cadastro */}
                   <div className="mt-6 md:col-span-2">
                     <Label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imagens do Evento
+                      Imagens do Actividade
                     </Label>
 
                     <div className="mt-2 flex items-center">
@@ -513,24 +519,24 @@ const ManageEvents = () => {
                 </form>
               </Form>
             ) : (
-              <Form {...formEventoUp}>
+              <Form {...formActividadeUp}>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    formEventoUp.handleSubmit((data) =>
-                      submitEvento(data, e)
+                    formActividadeUp.handleSubmit((data) =>
+                      submitActividade(data, e)
                     )();
                   }}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEventoUp.control}
+                        control={formActividadeUp.control}
                         name="titulo"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                              Título do Evento
+                              Título do Actividade
                             </FormLabel>
                             <FormControl>
                               <Input
@@ -547,7 +553,7 @@ const ManageEvents = () => {
 
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEventoUp.control}
+                        control={formActividadeUp.control}
                         name="descricao"
                         render={({ field }) => (
                           <FormItem>
@@ -558,7 +564,7 @@ const ManageEvents = () => {
                               <Textarea
                                 {...field}
                                 className="w-full p-2 border border-gray-300 rounded-md min-h-[100px]"
-                                placeholder="Descreva detalhes sobre o evento"
+                                placeholder="Descreva detalhes sobre o actividade"
                               />
                             </FormControl>
                             <FormMessage />
@@ -569,7 +575,7 @@ const ManageEvents = () => {
 
                     <div className="md:col-span-2">
                       <FormField
-                        control={formEventoUp.control}
+                        control={formActividadeUp.control}
                         name="local"
                         render={({ field }) => (
                           <FormItem>
@@ -591,7 +597,7 @@ const ManageEvents = () => {
 
                     <div>
                       <FormField
-                        control={formEventoUp.control}
+                        control={formActividadeUp.control}
                         name="data_inicio"
                         render={({ field }) => (
                           <FormItem>
@@ -613,7 +619,7 @@ const ManageEvents = () => {
 
                     <div>
                       <FormField
-                        control={formEventoUp.control}
+                        control={formActividadeUp.control}
                         name="data_fim"
                         render={({ field }) => (
                           <FormItem>
@@ -635,7 +641,7 @@ const ManageEvents = () => {
                   </div>
 
                   <FormField
-                    control={formEventoUp.control}
+                    control={formActividadeUp.control}
                     name="id"
                     render={({ field }) => (
                       <FormItem>
@@ -657,7 +663,7 @@ const ManageEvents = () => {
                     <p className="text-sm flex items-center">
                       <Image size={16} className="mr-2" />
                       As imagens não podem ser alteradas durante a edição do
-                      evento.
+                      actividade.
                     </p>
                   </div>
 
@@ -678,7 +684,7 @@ const ManageEvents = () => {
       ) : activeTab === "listar" ? (
         <Card>
           <CardHeader className="p-4">
-            <CardTitle>Eventos Cadastrados</CardTitle>
+            <CardTitle>Actividades Cadastrados</CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             <div className="overflow-x-auto">
@@ -706,45 +712,45 @@ const ManageEvents = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {eventosData?.map((evento) => (
-                    <tr key={evento.id}>
+                  {actividadesData?.map((actividade) => (
+                    <tr key={actividade.id}>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {evento.titulo}
+                        {actividade.titulo}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
                         <span className="flex items-center">
                           <MapPin size={14} className="mr-1" />
-                          {evento.local}
+                          {actividade.local}
                         </span>
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {formatarData(evento.data_inicio)}
+                        {formatarData(actividade.data_inicio)}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {formatarData(evento.data_fim)}
+                        {formatarData(actividade.data_fim)}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-center">
                         <button
-                          onClick={() => showEventImages(evento)}
+                          onClick={() => showEventImages(actividade)}
                           className="text-blue-600 hover:text-blue-800 inline-flex items-center"
                           title="Ver imagens"
                         >
                           <Image size={16} className="mr-1" />
-                          {evento.imagens?.length || 0}
+                          {actividade.imagens?.length || 0}
                         </button>
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-right">
                         <button
-                          onClick={() => iniciarEdicao(evento)}
+                          onClick={() => iniciarEdicao(actividade)}
                           className="text-blue-600 hover:text-blue-800 mr-3"
-                          title="Editar evento"
+                          title="Editar actividade"
                         >
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => openDeleteDialog(evento)}
+                          onClick={() => openDeleteDialog(actividade)}
                           className="text-green-600 hover:text-green-800"
-                          title="Excluir evento"
+                          title="Excluir actividade"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -773,9 +779,9 @@ const ManageEvents = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja deletar o evento "
-              {eventoParaExcluir?.titulo?.substring(0, 20)}..."? Esta ação não
-              pode ser desfeita.
+              Tem certeza que deseja deletar o actividade "
+              {actividadeParaExcluir?.titulo?.substring(0, 20)}..."? Esta ação
+              não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -790,15 +796,17 @@ const ManageEvents = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Diálogo para mostrar as imagens do evento */}
+      {/* Diálogo para mostrar as imagens do actividade */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Imagens do Evento: {currentEventTitle}</DialogTitle>
+            <DialogTitle>
+              Imagens do Actividade: {currentEventTitle}
+            </DialogTitle>
             <DialogDescription>
               {currentEventImages.length > 0
                 ? `Exibindo ${currentEventImages.length} imagens`
-                : "Este evento não possui imagens cadastradas"}
+                : "Este actividade não possui imagens cadastradas"}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -817,7 +825,9 @@ const ManageEvents = () => {
                   >
                     <img
                       src={`http://localhost:3333${imagem.url}`}
-                      alt={`Imagem ${index + 1} do evento ${currentEventTitle}`}
+                      alt={`Imagem ${
+                        index + 1
+                      } do actividade ${currentEventTitle}`}
                       className={`w-full h-auto object-cover rounded-md ${
                         currentEventImages.length > 1
                           ? "max-h-40 md:max-h-52"
@@ -833,7 +843,7 @@ const ManageEvents = () => {
             ) : (
               <div className="flex flex-col items-center justify-center py-6 text-gray-500">
                 <Image size={48} className="mb-2 opacity-50" />
-                <p>Nenhuma imagem encontrada para este evento</p>
+                <p>Nenhuma imagem encontrada para este actividade</p>
               </div>
             )}
           </div>

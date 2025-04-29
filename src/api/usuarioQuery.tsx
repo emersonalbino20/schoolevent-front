@@ -20,6 +20,7 @@ export const auxPutUsuario = (data) => {
     nome: data?.nome,
     sobrenome: data?.sobrenome,
     email: data?.email,
+    senha: data?.senha,
     tipo: data?.tipo,
   });
 };

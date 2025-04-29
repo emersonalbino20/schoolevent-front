@@ -66,7 +66,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-600">
               <li className="flex space-x-1 items-center hover:text-green-700">
                 <MdOutlineMarkEmailRead className="text-xl" />
-                <a href="#">contacto@RadlukEventos.com</a>
+                <a href="#">contacto@RadlukActividades.com</a>
               </li>
               <li className="flex space-x-1 items-center hover:text-green-700">
                 <FaWhatsapp className="text-xl" />
@@ -80,7 +80,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-200 mt-8 pt-6 text-center text-gray-700 text-sm">
-          &copy; 2025 RadlukEventos. Todos os direitos reservados.
+          &copy; 2025 RadlukActividades. Todos os direitos reservados.
         </div>
       </div>
     </footer>

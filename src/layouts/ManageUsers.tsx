@@ -147,7 +147,6 @@ const ManageUsers = () => {
     formUserUp.setValue("nome", usuario.nome);
     formUserUp.setValue("sobrenome", usuario.sobrenome);
     formUserUp.setValue("email", usuario.email);
-    formUserUp.setValue("senha", usuario.senha);
     formUserUp.setValue("tipo", usuario.tipo);
     setActiveTab("cadastrar");
   };
@@ -436,28 +435,6 @@ const ManageUsers = () => {
                       )}
                     />
                   </div>
-
-                  <div className="md:col-span-2">
-                    <FormField
-                      control={formUserUp.control}
-                      name="senha"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                            Senha
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="password"
-                              className="w-full p-2 border border-gray-300 rounded-md"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
                   <FormField
                     control={formUserUp.control}
                     name="id"
@@ -589,7 +566,7 @@ const ManageUsers = () => {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               Deletar
             </AlertDialogAction>

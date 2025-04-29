@@ -27,15 +27,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import LOGO from "@/assets/images/logo.png";
-import { useGetEventos } from "@/api/eventoQuery";
+import { useGetActividades } from "@/api/actividadeQuery";
 import { Link, useNavigate } from "react-router-dom";
 import { clearUserData, getUserData } from "@/hooks/AuthLocal";
 
 const ContentHome = () => {
-  const { data: eventosData, isLoading } = useGetEventos();
+  const { data: actividadesData, isLoading } = useGetActividades();
   const [searchTerm, setSearchTerm] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [filteredEventos, setFilteredEventos] = useState([]);
+  const [filteredActividades, setFilteredActividades] = useState([]);
   const [dateFilter, setDateFilter] = useState("todas");
 
   const navigate = useNavigate();
@@ -44,28 +44,31 @@ const ContentHome = () => {
     clearUserData(navigate);
   }
 
+  useEffect(() => {
+    usuario.tipo === "administrador" && navigate("*");
+  }, []);
   // Lidar com a busca e filtros
   useEffect(() => {
-    if (eventosData) {
-      let filtered = [...eventosData];
+    if (actividadesData) {
+      let filtered = [...actividadesData];
 
       // Aplicar filtro de pesquisa por título
       if (searchTerm) {
-        filtered = filtered.filter((evento) =>
-          evento.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+        filtered = filtered.filter((actividade) =>
+          actividade.titulo.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
 
       // Aplicar filtro de data
       if (dateFilter && dateFilter !== "todas") {
         filtered = filtered.filter(
-          (evento) => evento.data_inicio === dateFilter
+          (actividade) => actividade.data_inicio === dateFilter
         );
       }
 
-      setFilteredEventos(filtered);
+      setFilteredActividades(filtered);
     }
-  }, [eventosData, searchTerm, dateFilter]);
+  }, [actividadesData, searchTerm, dateFilter]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -80,7 +83,7 @@ const ContentHome = () => {
     setDateFilter("todas");
   };
 
-  // Verificar se evento está aberto ou fechado
+  // Verificar se actividade está aberto ou fechado
   const isEventoAberto = (dataFim) => {
     const hoje = new Date();
     const fimEvento = new Date(dataFim);
@@ -116,13 +119,13 @@ const ContentHome = () => {
                 className="h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 object-contain"
                 alt="Logo"
               />
-              <span>RadlukEventos</span>
+              <span>RadlukActividades</span>
             </div>
             <div className="hidden md:flex flex-1 max-w-md mx-4">
               <div className="relative w-full">
                 <Input
                   type="text"
-                  placeholder="Buscar eventos..."
+                  placeholder="Buscar actividades..."
                   className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg w-full"
                   value={searchTerm}
                   onChange={handleSearch}
@@ -166,7 +169,9 @@ const ContentHome = () => {
                   </DropdownMenu>
                 </div>
               ) : (
-                <Button variant={"ghost"}>Login</Button>
+                <Link to="/login" className="w-full">
+                  <Button variant={"ghost"}>Login</Button>
+                </Link>
               )}
 
               <p
@@ -183,7 +188,7 @@ const ContentHome = () => {
             <div className="relative w-full">
               <Input
                 type="text"
-                placeholder="Buscar eventos..."
+                placeholder="Buscar actividades..."
                 className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg w-full"
                 value={searchTerm}
                 onChange={handleSearch}
@@ -251,7 +256,7 @@ const ContentHome = () => {
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-3 border-green-200">
                   <Calendar className="mr-2 text-green-600" size={20} />
-                  Filtrar Eventos
+                  Filtrar Actividades
                 </h2>
 
                 <div className="space-y-6">
@@ -266,13 +271,13 @@ const ContentHome = () => {
                       </SelectTrigger>
                       <SelectContent position="popper" className="z-50">
                         <SelectItem value="todas">Todas as datas</SelectItem>
-                        {eventosData?.map((evento) => (
+                        {actividadesData?.map((actividade) => (
                           <SelectItem
-                            key={evento?.id}
-                            value={evento?.data_inicio}
+                            key={actividade?.id}
+                            value={actividade?.data_inicio}
                           >
-                            {formatDate(evento?.data_inicio)} -{" "}
-                            {formatDate(evento?.data_fim)}
+                            {formatDate(actividade?.data_inicio)} -{" "}
+                            {formatDate(actividade?.data_fim)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -292,33 +297,33 @@ const ContentHome = () => {
             </Card>
           </aside>
 
-          {/* Seção de Eventos (à direita) */}
+          {/* Seção de Actividades (à direita) */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="flex flex-col items-center space-y-2">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
-                <p className="text-green-600">Carregando eventos...</p>
+                <p className="text-green-600">Carregando actividades...</p>
               </div>
             </div>
           ) : (
             <div className="flex-1">
-              {/* Grade de Eventos */}
-              {filteredEventos?.length > 0 ? (
+              {/* Grade de Actividades */}
+              {filteredActividades?.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {filteredEventos?.map((evento) => {
-                      const isAberto = isEventoAberto(evento.data_fim);
+                    {filteredActividades?.map((actividade) => {
+                      const isAberto = isEventoAberto(actividade.data_fim);
 
                       return (
                         <Card
-                          key={evento.id}
+                          key={actividade.id}
                           className="overflow-hidden p-0 border border-gray-200 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
                         >
                           <div className="relative">
                             <div className="h-48">
                               <img
-                                src={`http://localhost:3333${evento?.imagens[0]?.url}`}
-                                alt={evento.titulo}
+                                src={`http://localhost:3333${actividade?.imagens[0]?.url}`}
+                                alt={actividade.titulo}
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -333,7 +338,7 @@ const ContentHome = () => {
 
                           <CardContent className="p-4 flex-grow flex flex-col">
                             <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                              {evento?.titulo}
+                              {actividade?.titulo}
                             </h3>
 
                             <div className="flex items-start space-x-1 text-sm text-gray-600 mb-2">
@@ -342,8 +347,8 @@ const ContentHome = () => {
                                 className="flex-shrink-0 mt-0.5"
                               />
                               <span>
-                                {formatDate(evento?.data_inicio)} até{" "}
-                                {formatDate(evento?.data_fim)}
+                                {formatDate(actividade?.data_inicio)} até{" "}
+                                {formatDate(actividade?.data_fim)}
                               </span>
                             </div>
 
@@ -352,16 +357,16 @@ const ContentHome = () => {
                                 size={16}
                                 className="flex-shrink-0 mt-0.5"
                               />
-                              <span>{evento?.local}</span>
+                              <span>{actividade?.local}</span>
                             </div>
 
                             <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                              {evento?.descricao}
+                              {actividade?.descricao}
                             </p>
                           </CardContent>
 
                           <CardFooter className="p-4 pt-0">
-                            <Link to={`/inscricao?id=${evento?.id}`}>
+                            <Link to={`/inscricao?id=${actividade?.id}`}>
                               <Button className="w-full bg-green-600 hover:bg-green-700">
                                 Ver Detalhes
                               </Button>
@@ -375,7 +380,7 @@ const ContentHome = () => {
               ) : (
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                   <p className="text-lg text-gray-500">
-                    Nenhum evento encontrado com os filtros selecionados.
+                    Nenhum actividade encontrado com os filtros selecionados.
                   </p>
                   <Button
                     variant="outline"

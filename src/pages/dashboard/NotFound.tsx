@@ -21,32 +21,6 @@ const NotFoundPage = () => {
             outro endereço.
           </p>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/">
-            <Button
-              variant="default"
-              className="flex items-center gap-2"
-              onClick={() => (window.location.href = "/")}
-            >
-              <Home className="h-4 w-4" />
-              Ir para página inicial
-            </Button>
-          </Link>
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => window.history.back()}
-          >
-            <RotateCcw className="h-4 w-4" />
-            Voltar
-          </Button>
-        </div>
-
-        <div className="text-sm text-gray-400 pt-8">
-          <p>Precisa de ajuda? Entre em contato conosco:</p>
-          <p className="mt-1">suporte@RadlukEventos.com | (+244) 000-000-000</p>
-        </div>
       </div>
     </div>
   );

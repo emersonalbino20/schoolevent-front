@@ -4,16 +4,16 @@ import axios from "axios";
 
 //Auxiliary Functions
 /* Post */
-export const auxPostEventos = (data) => {
+export const auxPostActividades = (data) => {
   return axios.post(`http://localhost:3333/eventos/`, data);
 };
 
-export const auxPostImagensEvento = (data) => {
+export const auxPostImagensActividade = (data) => {
   return axios.post(`http://localhost:3333/evento-imagem/multiplas`, data);
 };
 
 /* Put */
-export const auxPutEvento = (data) => {
+export const auxPutActividade = (data) => {
   return axios.put(`http://localhost:3333/eventos/${data?.id}`, {
     titulo: data?.titulo,
     descricao: data?.descricao,
@@ -23,7 +23,7 @@ export const auxPutEvento = (data) => {
   });
 };
 
-export const auxPutImagensEvento = (data) => {
+export const auxPutImagensActividade = (data) => {
   return axios.put(`http://localhost:3333/evento-imagen/${data?.id}`, {
     url: data?.url,
     descricao: data?.descricao,
@@ -31,15 +31,15 @@ export const auxPutImagensEvento = (data) => {
 };
 
 /* Delete */
-export const auxDeleteEvento = (id) => {
+export const auxDeleteActividade = (id) => {
   return axios.delete(`http://localhost:3333/eventos/${id}`);
 };
 
 //Main functions
-export const usePostEventos = () => {
+export const usePostActividades = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: auxPostEventos,
+    mutationFn: auxPostActividades,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["eventos"] });
       console.log("success");
@@ -51,10 +51,10 @@ export const usePostEventos = () => {
   return { mutate };
 };
 
-export const usePostImagensEvento = () => {
+export const usePostImagensActividade = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: auxPostImagensEvento,
+    mutationFn: auxPostImagensActividade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["imagens-evento"] });
       console.log("success");
@@ -66,10 +66,10 @@ export const usePostImagensEvento = () => {
   return { mutate };
 };
 
-export const usePutEvento = () => {
+export const usePutActividade = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: auxPutEvento,
+    mutationFn: auxPutActividade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["eventos"] });
       console.log("success");
@@ -81,10 +81,10 @@ export const usePutEvento = () => {
   return { mutate };
 };
 
-export const usePutImagensEvento = () => {
+export const usePutImagensActividade = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: auxPutImagensEvento,
+    mutationFn: auxPutImagensActividade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["imagens-evento"] });
       console.log("success");
@@ -96,10 +96,10 @@ export const usePutImagensEvento = () => {
   return { mutate };
 };
 
-export const useDeleteEvento = () => {
+export const useDeleteActividade = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: auxDeleteEvento,
+    mutationFn: auxDeleteActividade,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["eventos"] });
       console.log("success");
@@ -112,7 +112,7 @@ export const useDeleteEvento = () => {
 };
 
 //Get
-export const useGetEventos = () => {
+export const useGetActividades = () => {
   return useQuery({
     queryKey: ["eventos"],
     queryFn: () => {
@@ -123,7 +123,7 @@ export const useGetEventos = () => {
   });
 };
 
-export const useGetEvento = (id) => {
+export const useGetActividade = (id) => {
   const { data, isFetched, isLoading } = useQuery({
     queryKey: ["eventos", id],
     queryFn: () => axios.get(`http://localhost:3333/eventos/${id}`),
@@ -133,7 +133,7 @@ export const useGetEvento = (id) => {
 };
 
 // Get eventos futuros (filtrado por data)
-export const useGetEventosFuturos = () => {
+export const useGetActividadesFuturos = () => {
   return useQuery({
     queryKey: ["eventos", "futuros"],
     queryFn: () => {
@@ -146,7 +146,7 @@ export const useGetEventosFuturos = () => {
 };
 
 // Get eventos por local
-export const useGetEventosPorLocal = (local) => {
+export const useGetActividadesPorLocal = (local) => {
   return useQuery({
     queryKey: ["eventos", "local", local],
     queryFn: () => {

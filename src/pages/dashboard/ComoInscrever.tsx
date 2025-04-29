@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import LOGO from "@/assets/images/logo.png";
@@ -11,8 +11,14 @@ import {
   ArrowLeft,
   CheckCircle,
 } from "lucide-react";
+import { getUserData } from "@/hooks/AuthLocal";
 
 const ComoInscrever = () => {
+  const usuario = getUserData();
+  const navigate = useNavigate();
+  useEffect(() => {
+    usuario.tipo === "administrador" && navigate("*");
+  }, []);
   return (
     <main className="min-h-screen bg-gray-50 pt-6">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -21,7 +27,7 @@ const ComoInscrever = () => {
           <Link to="/" className="flex items-center space-x-2">
             <ArrowLeft className="h-5 w-5 text-green-600" />
             <span className="text-green-600 font-medium">
-              Voltar para eventos
+              Voltar para actividades
             </span>
           </Link>
 
@@ -29,10 +35,10 @@ const ComoInscrever = () => {
             <img
               src={LOGO}
               className="h-10 w-10 object-contain"
-              alt="Logo RadlukEventos"
+              alt="Logo RadlukActividades"
             />
             <span className="text-xl font-bold text-green-600">
-              RadlukEventos
+              RadlukActividades
             </span>
           </div>
         </div>
@@ -40,11 +46,11 @@ const ComoInscrever = () => {
         {/* Título da página */}
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Como Inscrever-se nos Eventos
+            Como Inscrever-se nos Actividades
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Siga este guia simples de 4 passos para participar de todos os
-            eventos disponíveis em nossa plataforma
+            actividades disponíveis em nossa plataforma
           </p>
         </div>
 
@@ -66,10 +72,10 @@ const ComoInscrever = () => {
                   </h2>
                   <p className="text-gray-700">
                     Para começar, você precisa ter uma conta na plataforma
-                    RadlukEventos. Registre-se fornecendo algumas informações
-                    básicas como nome, e-mail e senha. Sua conta permitirá
-                    acompanhar inscrições, receber notificações e gerenciar seu
-                    perfil.
+                    RadlukActividades. Registre-se fornecendo algumas
+                    informações básicas como nome, e-mail e senha. Sua conta
+                    permitirá acompanhar inscrições, receber notificações e
+                    gerenciar seu perfil.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
@@ -98,14 +104,14 @@ const ComoInscrever = () => {
                     <span className="flex items-center justify-center bg-purple-500 text-white rounded-full h-6 w-6 text-sm">
                       2
                     </span>
-                    Selecione um evento
+                    Selecione um actividade
                   </h2>
                   <p className="text-gray-700">
-                    Navegue pelo catálogo de eventos disponíveis e escolha o que
-                    mais lhe interessa. Você pode filtrar por data, localização
-                    ou tema. Clique em "Ver Detalhes" para obter mais
-                    informações sobre o evento, como descrição completa, agenda,
-                    local e requisitos.
+                    Navegue pelo catálogo de actividades disponíveis e escolha o
+                    que mais lhe interessa. Você pode filtrar por data,
+                    localização ou tema. Clique em "Ver Detalhes" para obter
+                    mais informações sobre o actividade, como descrição
+                    completa, agenda, local e requisitos.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
@@ -137,9 +143,9 @@ const ComoInscrever = () => {
                     Inscreva-se
                   </h2>
                   <p className="text-gray-700">
-                    Na página de detalhes do evento, clique no botão
+                    Na página de detalhes do actividade, clique no botão
                     "Inscrever-se". Preencha o formulário com as informações
-                    solicitadas e confirme sua inscrição. Em caso de eventos
+                    solicitadas e confirme sua inscrição. Em caso de actividades
                     pagos, você será direcionado para o processo de pagamento.
                     Após a confirmação, você receberá um e-mail com todos os
                     detalhes da sua inscrição.
@@ -174,10 +180,10 @@ const ComoInscrever = () => {
                     Deixe seu feedback
                   </h2>
                   <p className="text-gray-700">
-                    Após participar do evento, compartilhe sua experiência
+                    Após participar do actividade, compartilhe sua experiência
                     deixando um comentário. Seu feedback é muito importante para
                     nós e para outros participantes. Você receberá uma
-                    notificação para avaliar o evento assim que ele for
+                    notificação para avaliar o actividade assim que ele for
                     concluído.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -199,16 +205,16 @@ const ComoInscrever = () => {
         {/* CTA - Call to Action */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-8 rounded-lg text-center">
           <h2 className="text-2xl font-bold mb-4">
-            Pronto para participar de nossos eventos?
+            Pronto para participar de nossos actividades?
           </h2>
           <p className="mb-6 text-green-100">
             Agora que você sabe como se inscrever, explore nossa lista de
-            eventos e participe!
+            actividades e participe!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/">
               <Button className="bg-white text-green-700 hover:bg-green-50">
-                Ver eventos disponíveis
+                Ver actividades disponíveis
               </Button>
             </Link>
             <Link to="/cadastro">

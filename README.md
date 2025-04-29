@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Frontend do sistema "Sem nome" de Gestão de Atividades Escolares do Instituto Médio de Tecnologia da Saúde - RADLUK. Esta interface permite a interação dos usuários com as funcionalidades de gestão de atividades extracurriculares, eventos, participação e feedback.
+Frontend do sistema "Sem nome" de Gestão de Atividades Escolares do Instituto Médio de Tecnologia da Saúde - RADLUK. Esta interface permite a interação dos usuários com as funcionalidades de gestão de atividades extracurriculares, actividades, participação e feedback.
 
 ## Requisitos do Sistema
 
@@ -29,11 +29,11 @@ npm install
 
 ## Comandos Disponíveis
 
-| Comando | Descrição |
-|---------|-----------|
-| `npm run dev` | Inicia o servidor de desenvolvimento Vite na porta 5173. |
-| `npm run build` | Compila o projeto para produção. |
-| `npm run lint` | Executa o linter para verificar problemas de código. |
+| Comando           | Descrição                                                     |
+| ----------------- | ------------------------------------------------------------- |
+| `npm run dev`     | Inicia o servidor de desenvolvimento Vite na porta 5173.      |
+| `npm run build`   | Compila o projeto para produção.                              |
+| `npm run lint`    | Executa o linter para verificar problemas de código.          |
 | `npm run preview` | Inicia um servidor local para visualizar a build de produção. |
 
 ## Primeiros Passos

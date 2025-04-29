@@ -21,7 +21,7 @@ import LOGO from "@/assets/images/logo.png";
 import ManageProfile from "@/layouts/ManageProfile";
 import ManageEvents from "@/layouts/ManageEvents";
 import ManageComments from "@/layouts/ManageComments";
-import { useGetEventos } from "@/api/eventoQuery";
+import { useGetActividades } from "@/api/actividadeQuery";
 
 // Importando os componentes UI do primeiro componente
 import {
@@ -50,34 +50,37 @@ const AdminPanel = () => {
   const [select, setSelect] = useState(
     usuario.tipo === "aluno" ? "profile" : "dashboard"
   );
-  const { data: eventos = [] } = useGetEventos();
+  const { data: actividades = [] } = useGetActividades();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
   // Dashboard component functions
-  const totalEvents = eventos?.length || 0;
+  const totalEvents = actividades?.length || 0;
   const totalParticipants =
-    eventos?.reduce(
-      (acc, evento) => acc + (evento.inscricoes ? evento.inscricoes.length : 0),
+    actividades?.reduce(
+      (acc, actividade) =>
+        acc + (actividade.inscricoes ? actividade.inscricoes.length : 0),
       0
     ) || 0;
   const totalDestaques =
-    eventos?.reduce(
-      (acc, evento) => acc + (evento.destaques ? evento.destaques.length : 0),
+    actividades?.reduce(
+      (acc, actividade) =>
+        acc + (actividade.destaques ? actividade.destaques.length : 0),
       0
     ) || 0;
 
   // Get upcoming events (events that haven't ended yet)
   const now = new Date();
   const upcomingEvents =
-    eventos?.filter((evento) => new Date(evento.data_fim) > now) || [];
+    actividades?.filter((actividade) => new Date(actividade.data_fim) > now) ||
+    [];
 
   // Count events by location
   const eventsByLocation =
-    eventos?.reduce((acc, evento) => {
-      const location = evento?.local || "Sem local";
+    actividades?.reduce((acc, actividade) => {
+      const location = actividade?.local || "Sem local";
       acc[location] = (acc[location] || 0) + 1;
       return acc;
     }, {}) || {};
@@ -114,14 +117,14 @@ const AdminPanel = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Total de Eventos
+              Total de Actividades
             </CardTitle>
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalEvents}</div>
             <p className="text-xs text-muted-foreground">
-              {upcomingEvents?.length} eventos futuros
+              {upcomingEvents?.length} actividades futuros
             </p>
           </CardContent>
         </Card>
@@ -135,7 +138,7 @@ const AdminPanel = () => {
             <div className="text-2xl font-bold">{totalParticipants}</div>
             <p className="text-xs text-muted-foreground">
               {(totalParticipants / Math.max(totalEvents, 1)).toFixed(1)} média
-              por evento
+              por actividade
             </p>
           </CardContent>
         </Card>
@@ -170,7 +173,7 @@ const AdminPanel = () => {
       {/* Tabs for different views */}
       <Tabs defaultValue="upcoming" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="upcoming">Próximos Eventos</TabsTrigger>
+          <TabsTrigger value="upcoming">Próximos Actividades</TabsTrigger>
           <TabsTrigger value="locations">Distribuição por Local</TabsTrigger>
           <TabsTrigger value="destaques">Destaques</TabsTrigger>
         </TabsList>
@@ -179,41 +182,43 @@ const AdminPanel = () => {
         <TabsContent value="upcoming" className="space-y-4">
           {upcomingEvents.length === 0 ? (
             <Alert>
-              <AlertTitle>Nenhum evento futuro encontrado</AlertTitle>
+              <AlertTitle>Nenhum actividade futuro encontrado</AlertTitle>
               <AlertDescription>
-                Não há eventos agendados para os próximos dias.
+                Não há actividades agendados para os próximos dias.
               </AlertDescription>
             </Alert>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {upcomingEvents.map((evento) => (
-                <Card key={evento.id}>
+              {upcomingEvents.map((actividade) => (
+                <Card key={actividade.id}>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between">
-                      <CardTitle>{evento.titulo}</CardTitle>
-                      <Badge>{evento.inscricoes?.length || 0} inscritos</Badge>
+                      <CardTitle>{actividade.titulo}</CardTitle>
+                      <Badge>
+                        {actividade.inscricoes?.length || 0} inscritos
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-2">
-                      {evento.descricao}
+                      {actividade.descricao}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex items-center text-sm">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       <span>
-                        {formatDate(evento.data_inicio)} -{" "}
-                        {formatDate(evento.data_fim)}
+                        {formatDate(actividade.data_inicio)} -{" "}
+                        {formatDate(actividade.data_fim)}
                       </span>
                     </div>
                     <div className="flex items-center text-sm">
                       <MapPin className="mr-2 h-4 w-4" />
-                      <span>{evento.local}</span>
+                      <span>{actividade.local}</span>
                     </div>
                     <div className="flex items-center text-sm">
                       <Users className="mr-2 h-4 w-4" />
                       <span>
-                        Criado por: {evento.criador?.nome}{" "}
-                        {evento.criador?.sobrenome}
+                        Criado por: {actividade.criador?.nome}{" "}
+                        {actividade.criador?.sobrenome}
                       </span>
                     </div>
                   </CardContent>
@@ -227,9 +232,9 @@ const AdminPanel = () => {
         <TabsContent value="locations" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Eventos por Local</CardTitle>
+              <CardTitle>Actividades por Local</CardTitle>
               <CardDescription>
-                Distribuição de eventos por local de realização
+                Distribuição de actividades por local de realização
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -238,7 +243,7 @@ const AdminPanel = () => {
                   <div className="flex justify-between text-sm">
                     <span>{location}</span>
                     <span className="font-medium">
-                      {count as number} eventos
+                      {count as number} actividades
                     </span>
                   </div>
                   <Progress value={((count as number) / totalEvents) * 100} />
@@ -254,21 +259,21 @@ const AdminPanel = () => {
             <CardHeader>
               <CardTitle>Alunos em Destaque</CardTitle>
               <CardDescription>
-                Reconhecimentos e menções de destaque em eventos
+                Reconhecimentos e menções de destaque em actividades
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {!eventos || eventos.length === 0 ? (
+              {!actividades || actividades.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
-                  Nenhum evento encontrado.
+                  Nenhum actividade encontrado.
                 </div>
               ) : (
                 <>
-                  {eventos.flatMap(
-                    (evento) =>
-                      evento.destaques?.map((destaque) => (
+                  {actividades.flatMap(
+                    (actividade) =>
+                      actividade.destaques?.map((destaque) => (
                         <div
-                          key={`${evento.id}-${destaque.aluno?.email}`}
+                          key={`${actividade.id}-${destaque.aluno?.email}`}
                           className="flex items-center space-x-4 py-3 border-b last:border-0"
                         >
                           <Avatar>
@@ -290,7 +295,7 @@ const AdminPanel = () => {
                               </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              Destaque em: {evento.titulo}
+                              Destaque em: {actividade.titulo}
                             </p>
                           </div>
                         </div>
@@ -299,7 +304,7 @@ const AdminPanel = () => {
 
                   {totalDestaques === 0 && (
                     <div className="py-8 text-center text-muted-foreground">
-                      Nenhum aluno em destaque registrado nos eventos.
+                      Nenhum aluno em destaque registrado nos actividades.
                     </div>
                   )}
                 </>
@@ -321,7 +326,7 @@ const AdminPanel = () => {
           alt="Logo"
         />
         <h1 className="font-bold text-sm sm:text-base md:text-lg lg:text-xl">
-          RadlukEventos
+          RadlukActividades
         </h1>
       </div>
 
@@ -329,15 +334,17 @@ const AdminPanel = () => {
         <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase">
           Principal
         </div>
-        <Link to={"/"}>
-          <a
-            href="#"
-            className={`flex items-center px-4 py-3 ${"text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}`}
-          >
-            <FaHome size={20} className="mr-3" />
-            <span>Home</span>
-          </a>
-        </Link>
+        {(usuario.tipo == "profesoor" || usuario.tipo == "aluno") && (
+          <Link to={"/"}>
+            <a
+              href="#"
+              className={`flex items-center px-4 py-3 ${"text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}`}
+            >
+              <FaHome size={20} className="mr-3" />
+              <span>Home</span>
+            </a>
+          </Link>
+        )}
         {usuario.tipo === "aluno" ? (
           ""
         ) : (
@@ -362,16 +369,16 @@ const AdminPanel = () => {
           <a
             href="#"
             onClick={() => {
-              setSelect("eventos");
+              setSelect("actividades");
             }}
             className={`flex items-center px-4 py-3 ${
-              select === "eventos"
+              select === "actividades"
                 ? "text-white bg-gray-800"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
             }`}
           >
             <Calendar size={20} className="mr-3" />
-            <span>Eventos</span>
+            <span>Actividades</span>
           </a>
         )}
         {usuario.tipo === "administrador" && (
@@ -527,7 +534,7 @@ const AdminPanel = () => {
                   alt="Logo"
                 />
                 <h2 className="text-base xs:text-lg sm:text-xl font-semibold text-gray-800 ml-2">
-                  RadlukEventos
+                  RadlukActividades
                 </h2>
               </div>
               <h2 className="text-xl font-semibold text-gray-800 hidden lg:block">
@@ -541,7 +548,7 @@ const AdminPanel = () => {
         {select === "dashboard" && <Dashboard />}
         {select === "users" && <ManageUsers />}
         {select === "profile" && <ManageProfile />}
-        {select === "eventos" && <ManageEvents />}
+        {select === "actividades" && <ManageEvents />}
         {select === "comments" && <ManageComments />}
       </div>
     </div>

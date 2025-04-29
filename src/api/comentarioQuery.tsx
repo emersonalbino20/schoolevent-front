@@ -12,7 +12,7 @@ export const auxPostComentarios = (data) => {
 export const auxPutUsuario = (data) => {
   return axios.put(`http://localhost:3333/comentarios/${data?.id}`, {
     usuario_id: data?.usuario_id,
-    evento_id: data?.evento_id,
+    actividade_id: data?.actividade_id,
     texto: data?.texto,
   });
 };

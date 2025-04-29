@@ -37,7 +37,10 @@ import { AlertTriangle } from "lucide-react";
 import { setUserData, getUserData } from "@/hooks/AuthLocal";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const usuario = getUserData();
+  useEffect(() => {
+    usuario && navigate("*");
+  }, []);
   const form = useForm({
     resolver: zodResolver(schemeLogin),
     defaultValues: {
@@ -93,7 +96,7 @@ const Login = () => {
           className="h-12 w-12 sm:h-16 sm:w-16 md:h-28 md:w-28 object-contain"
           alt="Logo"
         />
-        <span>RadlukEventos</span>
+        <span>RadlukActividades</span>
       </div>
 
       <Card className="w-full max-w-md shadow-lg">
@@ -108,7 +111,7 @@ const Login = () => {
 
         <CardContent className="pt-6">
           <Form {...form}>
-            {/* Modificado para passar o evento para onSubmit */}
+            {/* Modificado para passar o actividade para onSubmit */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -230,7 +233,7 @@ const Login = () => {
       </Card>
 
       <p className="mt-8 text-center text-sm text-gray-500">
-        © 2025 RadlukEventos. Todos os direitos reservados.
+        © 2025 RadlukActividades. Todos os direitos reservados.
       </p>
     </div>
   );
