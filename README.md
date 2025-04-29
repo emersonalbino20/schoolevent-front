@@ -15,8 +15,8 @@ Frontend do sistema "Sem nome" de Gestão de Atividades Escolares do Instituto M
 ### 1. Clonando o Repositório
 
 ```bash
-git clone https://github.com/emersonalbino20/schoolevents-front.git
-cd schoolevents
+git clone https://github.com/emersonalbino20/schoolevent-front.git
+cd schoolevent-front
 ```
 
 ### 2. Instalação de Dependências
