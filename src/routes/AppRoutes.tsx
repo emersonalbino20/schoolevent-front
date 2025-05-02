@@ -12,6 +12,7 @@ const InscricoesUsuario = lazy(
 );
 const NotFound = lazy(() => import("../pages/dashboard/NotFound"));
 const ComoInscrever = lazy(() => import("@/pages/dashboard/ComoInscrever"));
+const Perfil = lazy(() => import("@/pages/dashboard/ComoInscrever"));
 
 export function AppRoutes() {
   return (

@@ -147,6 +147,7 @@ const ManageUsers = () => {
     formUserUp.setValue("nome", usuario.nome);
     formUserUp.setValue("sobrenome", usuario.sobrenome);
     formUserUp.setValue("email", usuario.email);
+ //   formUserUp.setValue("senha", usuario.senha);
     formUserUp.setValue("tipo", usuario.tipo);
     setActiveTab("cadastrar");
   };
@@ -435,6 +436,7 @@ const ManageUsers = () => {
                       )}
                     />
                   </div>
+
                   <FormField
                     control={formUserUp.control}
                     name="id"
@@ -566,7 +568,7 @@ const ManageUsers = () => {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               Deletar
             </AlertDialogAction>

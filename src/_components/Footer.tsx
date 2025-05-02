@@ -66,7 +66,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-600">
               <li className="flex space-x-1 items-center hover:text-green-700">
                 <MdOutlineMarkEmailRead className="text-xl" />
-                <a href="#">contacto@RadlukActividades.com</a>
+                <a href="#">contacto@radlukactividades.com</a>
               </li>
               <li className="flex space-x-1 items-center hover:text-green-700">
                 <FaWhatsapp className="text-xl" />

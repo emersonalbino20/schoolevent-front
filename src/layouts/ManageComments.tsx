@@ -48,8 +48,8 @@ const ManageComments = () => {
       enviarComentario(
         {
           usuario_id: usuario.usuario_id,
-          actividade_id: comentarioId,
-          texto: comentario || "(Comentário Padrão): o actividade estava ",
+          evento_id: comentarioId,
+          texto: comentario || "(Comentário Padrão): o evento estava ",
         },
         {
           onSuccess: () => {
@@ -128,23 +128,21 @@ const ManageComments = () => {
                     return (
                       <tr key={inscricoes.id}>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          {inscricoes?.actividade.titulo}
+                          {inscricoes?.evento.titulo}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          {inscricoes?.actividade.descricao}
+                          {inscricoes?.evento.descricao}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          De {formatDate(inscricoes?.actividade.data_inicio)}{" "}
-                          até {formatDate(inscricoes?.actividade.data_fim)}
+                          De {formatDate(inscricoes?.evento.data_inicio)} até{" "}
+                          {formatDate(inscricoes?.evento.data_fim)}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          {formatTime(inscricoes?.actividade.data_inicio)} às{" "}
-                          {formatTime(inscricoes?.actividade.data_fim)}
+                          {formatTime(inscricoes?.evento.data_inicio)} às{" "}
+                          {formatTime(inscricoes?.evento.data_fim)}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-right">
-                          {isEventoEncerrado(
-                            inscricoes?.actividade.data_fim
-                          ) ? (
+                          {isEventoEncerrado(inscricoes?.evento.data_fim) ? (
                             <button
                               onClick={() =>
                                 openComentarioDialog(inscricoes?.id)
@@ -192,7 +190,7 @@ const ManageComments = () => {
           <div className="p-4">
             <Textarea
               required
-              placeholder="Deixe um comentário relacionado ao actividade"
+              placeholder="Deixe um comentário relacionado ao evento"
               value={comentario}
               onChange={(e) => setComentario(e.target.value)}
               className="w-full"

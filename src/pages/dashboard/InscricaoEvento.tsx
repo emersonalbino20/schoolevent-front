@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  useParams,
-  useNavigate,
-  useSearchParams,
-  Link,
-} from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Calendar,
   Clock,
@@ -18,23 +13,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useGetActividade } from "@/api/actividadeQuery";
+import { useGetEvento } from "@/api/eventoQuery";
 import { usePostInscricao } from "@/api/inscricaoQuery";
 import LOGO from "@/assets/images/logo.png";
-import image from "@/assets/images/court-basketball.jpg";
 import { getUserData } from "@/hooks/AuthLocal";
+import ComentariosEvento from "@/_components/ComentariosEvento";
 
 const InscricaoEvento = () => {
   const usuario = getUserData();
-  useEffect(() => {
-    usuario.tipo === "administrador" && navigate("*");
-  }, []);
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const navigate = useNavigate();
-  const { data: actividade, isLoading: isLoadingEvento } = useGetActividade(id);
-  console.log(actividade);
-  const r = actividade?.data[0]?.inscricoes?.some(
+
+  useEffect(()=>{
+    if(usuario?.tipo == "administrador"){
+      navigate('/admin');
+    }
+
+  },[]);
+  const { data: evento, isLoading: isLoadingEvento } = useGetEvento(id);
+  const r = evento?.data[0]?.inscricoes?.some(
     (inscricao: any) => inscricao.usuario.email === usuario?.email
   );
 
@@ -47,23 +45,19 @@ const InscricaoEvento = () => {
     message: "",
   });
 
-  // Atualizar índice da imagem quando o actividade carregar
+  // Atualizar índice da imagem quando o evento carregar
   useEffect(() => {
-    if (actividade?.data && actividade.data.length > 0) {
+    if (evento?.data && evento.data.length > 0) {
       setCurrentImageIndex(0);
     }
-  }, [actividade]);
+  }, [evento]);
 
   // Navegar para a próxima imagem
   const nextImage = () => {
-    if (
-      !actividade?.data ||
-      actividade.data.length === 0 ||
-      !actividade.data[0].imagens
-    )
+    if (!evento?.data || evento.data.length === 0 || !evento.data[0].imagens)
       return;
 
-    const imagesCount = actividade.data[0].imagens.length;
+    const imagesCount = evento.data[0].imagens.length;
     if (imagesCount <= 1) return;
 
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imagesCount);
@@ -71,14 +65,10 @@ const InscricaoEvento = () => {
 
   // Navegar para a imagem anterior
   const prevImage = () => {
-    if (
-      !actividade?.data ||
-      actividade.data.length === 0 ||
-      !actividade.data[0].imagens
-    )
+    if (!evento?.data || evento.data.length === 0 || !evento.data[0].imagens)
       return;
 
-    const imagesCount = actividade.data[0].imagens.length;
+    const imagesCount = evento.data[0].imagens.length;
     if (imagesCount <= 1) return;
 
     setCurrentImageIndex(
@@ -99,7 +89,7 @@ const InscricaoEvento = () => {
     });
   };
 
-  // Verificar se actividade está aberto ou fechado
+  // Verificar se evento está aberto ou fechado
   const isEventoAberto = (dataFim) => {
     if (!dataFim) return false;
     const hoje = new Date();
@@ -109,12 +99,12 @@ const InscricaoEvento = () => {
 
   // Realizar inscrição
   const handleInscricao = () => {
-    if (!actividade) return;
+    if (!evento) return;
 
     // Dados para inscrição
     const inscricaoData = {
       usuario_id: usuario.usuario_id,
-      actividade_id: parseInt(id),
+      evento_id: parseInt(id),
       data_inscricao: new Date().toISOString(),
       status: "confirmado",
     };
@@ -159,12 +149,9 @@ const InscricaoEvento = () => {
               <span>RadlukActividades</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Link
-                to={"/como-inscrever-se"}
-                className="underline cursor-pointer text-blue-600 hover:text-blue-700"
-              >
+              <p className="underline cursor-pointer text-blue-600 hover:text-blue-700">
                 Como Inscrever-se?
-              </Link>
+              </p>
             </div>
           </div>
         </div>
@@ -178,36 +165,33 @@ const InscricaoEvento = () => {
           onClick={handleVoltar}
         >
           <ArrowLeft className="mr-2" size={18} />
-          Voltar para Actividades
+          Voltar para Eventos
         </Button>
 
         {isLoadingEvento ? (
           <div className="flex justify-center items-center h-64">
             <div className="flex flex-col items-center space-y-2">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
-              <p className="text-green-600">
-                Carregando detalhes do actividade...
-              </p>
+              <p className="text-green-600">Carregando detalhes do evento...</p>
             </div>
           </div>
-        ) : actividade?.data.length > 0 ? (
+        ) : evento?.data.length > 0 ? (
           <>
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               <div className="relative h-48 sm:h-64 md:h-80">
                 {/* Carrossel de imagens */}
-                {actividade.data[0].imagens &&
-                actividade.data[0].imagens.length > 0 ? (
+                {evento.data[0].imagens && evento.data[0].imagens.length > 0 ? (
                   <>
                     <img
-                      src={`http://localhost:3333${actividade.data[0].imagens[currentImageIndex]?.url}`}
-                      alt={`${actividade.data[0].titulo} - Imagem ${
+                      src={`http://localhost:3333${evento.data[0].imagens[currentImageIndex]?.url}`}
+                      alt={`${evento.data[0].titulo} - Imagem ${
                         currentImageIndex + 1
                       }`}
                       className="w-full h-full object-cover transition-opacity duration-300"
                     />
 
                     {/* Controles do carrossel */}
-                    {actividade.data[0].imagens.length > 1 && (
+                    {evento.data[0].imagens.length > 1 && (
                       <>
                         <button
                           onClick={prevImage}
@@ -226,7 +210,7 @@ const InscricaoEvento = () => {
 
                         {/* Indicadores de imagem */}
                         <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                          {actividade.data[0].imagens.map((_, index) => (
+                          {evento.data[0].imagens.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => setCurrentImageIndex(index)}
@@ -248,8 +232,8 @@ const InscricaoEvento = () => {
                   </div>
                 )}
 
-                {/* Overlay para actividade encerrado */}
-                {!isEventoAberto(actividade.data[0]?.data_fim) && (
+                {/* Overlay para evento encerrado */}
+                {!isEventoAberto(evento.data[0]?.data_fim) && (
                   <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
                     <div className="bg-red-500 text-white px-6 py-3 rounded-md text-lg font-bold">
                       Evento Encerrado
@@ -261,9 +245,9 @@ const InscricaoEvento = () => {
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-0">
-                    {actividade.data[0]?.titulo}
+                    {evento.data[0]?.titulo}
                   </h1>
-                  {isEventoAberto(actividade.data[0]?.data_fim) && (
+                  {isEventoAberto(evento.data[0]?.data_fim) && (
                     <div className="inline-flex bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium">
                       Inscrições Abertas
                     </div>
@@ -271,7 +255,7 @@ const InscricaoEvento = () => {
                 </div>
 
                 <p className="text-lg text-gray-700 mb-6">
-                  {actividade.data[0]?.descricao}
+                  {evento.data[0]?.descricao}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -282,8 +266,8 @@ const InscricaoEvento = () => {
                         <div>
                           <p className="font-medium text-gray-700">Data</p>
                           <p>
-                            De {formatDate(actividade.data[0]?.data_inicio)} até{" "}
-                            {formatDate(actividade.data[0]?.data_fim)}
+                            De {formatDate(evento.data[0]?.data_inicio)} até{" "}
+                            {formatDate(evento.data[0]?.data_fim)}
                           </p>
                         </div>
                       </div>
@@ -297,8 +281,8 @@ const InscricaoEvento = () => {
                         <div>
                           <p className="font-medium text-gray-700">Horário</p>
                           <p>
-                            {formatTime(actividade.data[0]?.data_inicio)} às{" "}
-                            {formatTime(actividade.data[0]?.data_fim)}
+                            {formatTime(evento.data[0]?.data_inicio)} às{" "}
+                            {formatTime(evento.data[0]?.data_fim)}
                           </p>
                         </div>
                       </div>
@@ -311,7 +295,7 @@ const InscricaoEvento = () => {
                         <MapPin className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
                         <div>
                           <p className="font-medium text-gray-700">Local</p>
-                          <p>{actividade.data[0]?.local}</p>
+                          <p>{evento.data[0]?.local}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -342,8 +326,8 @@ const InscricaoEvento = () => {
                   Inscrição confirmada!
                 </AlertTitle>
                 <AlertDescription className="text-green-700">
-                  Sua inscrição para o actividade "{actividade.data[0]?.titulo}"
-                  foi realizada com sucesso.
+                  Sua inscrição para o evento "{evento.data[0]?.titulo}" foi
+                  realizada com sucesso.
                 </AlertDescription>
               </Alert>
             )}
@@ -365,33 +349,39 @@ const InscricaoEvento = () => {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Realizar Inscrição
                 </h2>
+                {usuario ? (
                 <p className="text-gray-700 mb-6">
-                  Para participar deste actividade, clique no botão abaixo para
-                  confirmar sua inscrição. Após a inscrição, você receberá todas
+                  Para participar deste evento, clique no botão abaixo para
+                  ir para a tela de login. Após a inscrição, você receberá todas
                   as informações necessárias.
                 </p>
+                ):(<p className="text-gray-700 mb-6">
+                  Para participar deste evento, clique no botão abaixo para
+                  Login e continue com a sua inscrição.
+                </p>)}
               </CardContent>
               <CardFooter className="bg-gray-50 p-6 border-t">
                 <Button
                   className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6"
                   onClick={handleInscricao}
                   disabled={
-                    !isEventoAberto(actividade.data[0]?.data_fim) ||
+                    !isEventoAberto(evento.data[0]?.data_fim) ||
                     inscricaoStatus.success ||
                     isInscrevendo ||
-                    actividade?.data[0]?.inscricoes?.some(
+                    evento?.data[0]?.inscricoes?.some(
                       (inscricao: any) =>
                         inscricao.usuario.email === usuario?.email
                     )
                   }
                 >
+                  
                   {isInscrevendo ? (
                     <>
                       <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                       Processando...
                     </>
                   ) : inscricaoStatus.success ||
-                    actividade?.data[0]?.inscricoes?.some(
+                    evento?.data[0]?.inscricoes?.some(
                       (inscricao: any) =>
                         inscricao.usuario.email === usuario?.email
                     ) ? (
@@ -399,7 +389,7 @@ const InscricaoEvento = () => {
                       <Check className="mr-2" size={18} />
                       Inscrito
                     </>
-                  ) : !isEventoAberto(actividade.data[0]?.data_fim) ? (
+                  ) : !isEventoAberto(evento.data[0]?.data_fim) ? (
                     "Inscrições Encerradas"
                   ) : (
                     "Confirmar Inscrição"
@@ -414,11 +404,15 @@ const InscricaoEvento = () => {
               Evento não encontrado
             </AlertTitle>
             <AlertDescription className="text-red-700">
-              Não foi possível encontrar os detalhes deste actividade. Por
-              favor, verifique o link e tente novamente.
+              Não foi possível encontrar os detalhes deste evento. Por favor,
+              verifique o link e tente novamente.
             </AlertDescription>
           </Alert>
         )}
+         {/* Adicione a seção de comentários */}
+    {evento?.data && evento.data.length > 0 && (
+      <ComentariosEvento evento={evento.data[0]} />
+    )}
       </div>
     </main>
   );

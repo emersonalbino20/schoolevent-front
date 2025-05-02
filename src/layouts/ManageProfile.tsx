@@ -6,7 +6,7 @@ import { useGetUsuario, usePutUsuario } from "@/api/usuarioQuery";
 import FeedbackDialog from "@/_components/FeedbackDialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { schemeProfileUp } from "@/utils/validateForm";
+import { schemeMyProfileUp } from "@/utils/validateForm";
 import {
   Form,
   FormField,
@@ -21,7 +21,7 @@ const ManageProfile = () => {
   const usuario = getUserData();
 
   const formUserProfile = useForm({
-    resolver: zodResolver(schemeProfileUp),
+    resolver: zodResolver(schemeMyProfileUp),
     defaultValues: {
       nome: "",
       sobrenome: "",
@@ -67,9 +67,7 @@ const ManageProfile = () => {
       },
       onError: (error) => {
         console.error(error);
-        setErro({
-          response: { data: { data: { errors: "email já existe!" } } },
-        });
+        setErro(error);
         setIsSuccess(false);
         setFeedbackMessage(
           "Não foi possível atualizar o perfil. Verifique seus dados e tente novamente."

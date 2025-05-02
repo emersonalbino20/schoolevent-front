@@ -112,6 +112,7 @@ export const schemeUserUp = z.object({
     .trim()
     .email({ message: "Digite um e-mail válido" })
     .max(255, { message: "O e-mail não pode ter mais de 255 caracteres" }),
+  
   tipo: z
     .enum(["administrador", "professor", "aluno"], {
       message: "Tipo de usuário inválido",
@@ -119,7 +120,49 @@ export const schemeUserUp = z.object({
     .default("aluno"),
 });
 
-export const schemeActividade = z
+export const schemeMyProfileUp = z.object({
+  id: z
+    .number({
+      message: "ID inválido",
+    })
+    .optional(),
+  nome: z
+    .string()
+    .trim()
+    .min(3, { message: "O nome deve ter pelo menos 3 caracteres" })
+    .max(10, { message: "O nome não pode ter mais de 10 caracteres" })
+    .regex(nameRegex, {
+      message: "O nome deve começar com maiúscula e não deve conter  espaços",
+    }),
+  sobrenome: z
+    .string()
+    .trim()
+    .min(3, { message: "O sobrenome deve ter pelo menos 3 caracteres" })
+    .max(10, { message: "O sobrenome não pode ter mais de 10 caracteres" })
+    .regex(nameRegex, {
+      message:
+        "O sobrenome deve começar com maiúscula e não deve conter  espaços",
+    }),
+  email: z
+    .string()
+    .trim()
+    .email({ message: "Digite um e-mail válido" })
+    .max(255, { message: "O e-mail não pode ter mais de 255 caracteres" }),
+    senha: z
+    .string()
+    .trim()
+    .regex(passwordRegex, {
+      message:
+        "A senha deve ter pelo menos 6 caracteres, incluindo uma letra maiúscula, uma minúscula, um número e um caractere especial.",
+    })
+    .max(255, "A senha deve ter no máximo 255 caracteres"),
+  tipo: z
+    .enum(["administrador", "professor", "aluno"], {
+      message: "Tipo de usuário inválido",
+    })
+    .default("aluno"),
+});
+export const schemeEvento = z
   .object({
     titulo: z
       .string()
@@ -187,13 +230,13 @@ export const schemeActividade = z
       return diffHours >= 1 && diffHours <= 10;
     },
     {
-      message: "A duração do actividade deve ser entre 1 e 10 horas",
+      message: "A duração do evento deve ser entre 1 e 10 horas",
       path: ["data_fim"],
     }
   );
 
-// Esquema para atualização de um actividade existente
-export const schemeActividadeUp = z
+// Esquema para atualização de um evento existente
+export const schemeEventoUp = z
   .object({
     id: z
       .number({
@@ -266,50 +309,7 @@ export const schemeActividadeUp = z
       return diffHours >= 1 && diffHours <= 10;
     },
     {
-      message: "A duração do actividade deve ser entre 1 e 10 horas",
+      message: "A duração do evento deve ser entre 1 e 10 horas",
       path: ["data_fim"],
     }
   );
-
-export const schemeProfileUp = z.object({
-  id: z
-    .number({
-      message: "ID inválido",
-    })
-    .optional(),
-  nome: z
-    .string()
-    .trim()
-    .min(3, { message: "O nome deve ter pelo menos 3 caracteres" })
-    .max(10, { message: "O nome não pode ter mais de 10 caracteres" })
-    .regex(nameRegex, {
-      message: "O nome deve começar com maiúscula e não deve conter  espaços",
-    }),
-  sobrenome: z
-    .string()
-    .trim()
-    .min(3, { message: "O sobrenome deve ter pelo menos 3 caracteres" })
-    .max(10, { message: "O sobrenome não pode ter mais de 10 caracteres" })
-    .regex(nameRegex, {
-      message:
-        "O sobrenome deve começar com maiúscula e não deve conter  espaços",
-    }),
-  email: z
-    .string()
-    .trim()
-    .email({ message: "Digite um e-mail válido" })
-    .max(255, { message: "O e-mail não pode ter mais de 255 caracteres" }),
-  senha: z
-    .string()
-    .trim()
-    .regex(passwordRegex, {
-      message:
-        "A senha deve ter pelo menos 6 caracteres, incluindo uma letra maiúscula, uma minúscula, um número e um caractere especial.",
-    })
-    .max(255, "A senha deve ter no máximo 255 caracteres"),
-  tipo: z
-    .enum(["administrador", "professor", "aluno"], {
-      message: "Tipo de usuário inválido",
-    })
-    .default("aluno"),
-});

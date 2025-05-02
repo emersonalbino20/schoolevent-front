@@ -7,6 +7,7 @@ import {
   Calendar,
   MapPin,
   ChevronDown,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,49 +27,58 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LOGO from "@/assets/images/logo.png";
-import { useGetActividades } from "@/api/actividadeQuery";
+import { useGetEventos, useGetEventosPasados } from "@/api/eventoQuery";
 import { Link, useNavigate } from "react-router-dom";
 import { clearUserData, getUserData } from "@/hooks/AuthLocal";
 
 const ContentHome = () => {
-  const { data: actividadesData, isLoading } = useGetActividades();
+  const { data: eventosData, isLoading: isLoadingEventos } = useGetEventos();
+  const { data: eventosPasadosData, isLoading: isLoadingEventosPasados } = useGetEventosPasados();
   const [searchTerm, setSearchTerm] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [filteredActividades, setFilteredActividades] = useState([]);
+  const [filteredEventos, setFilteredEventos] = useState([]);
   const [dateFilter, setDateFilter] = useState("todas");
+  const [activeTab, setActiveTab] = useState("proximos");
 
   const navigate = useNavigate();
   const usuario = getUserData();
+
+  useEffect(() => {
+    if (usuario?.tipo == "administrador") {
+      navigate('/admin');
+    }
+  }, []);
+
   function handleLogout() {
     clearUserData(navigate);
   }
 
-  useEffect(() => {
-    usuario.tipo === "administrador" && navigate("*");
-  }, []);
   // Lidar com a busca e filtros
   useEffect(() => {
-    if (actividadesData) {
-      let filtered = [...actividadesData];
+    const currentEventos = activeTab === "proximos" ? eventosData : eventosPasadosData;
+    
+    if (currentEventos) {
+      let filtered = [...currentEventos];
 
       // Aplicar filtro de pesquisa por título
       if (searchTerm) {
-        filtered = filtered.filter((actividade) =>
-          actividade.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+        filtered = filtered.filter((evento) =>
+          evento.titulo.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
 
       // Aplicar filtro de data
       if (dateFilter && dateFilter !== "todas") {
         filtered = filtered.filter(
-          (actividade) => actividade.data_inicio === dateFilter
+          (evento) => evento.data_inicio === dateFilter
         );
       }
 
-      setFilteredActividades(filtered);
+      setFilteredEventos(filtered);
     }
-  }, [actividadesData, searchTerm, dateFilter]);
+  }, [eventosData, eventosPasadosData, searchTerm, dateFilter, activeTab]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -83,7 +93,7 @@ const ContentHome = () => {
     setDateFilter("todas");
   };
 
-  // Verificar se actividade está aberto ou fechado
+  // Verificar se evento está aberto ou fechado
   const isEventoAberto = (dataFim) => {
     const hoje = new Date();
     const fimEvento = new Date(dataFim);
@@ -100,154 +110,27 @@ const ContentHome = () => {
     navigate("/como-inscrever-se");
   };
 
+  const isLoading = activeTab === "proximos" ? isLoadingEventos : isLoadingEventosPasados;
+  const currentDates = activeTab === "proximos" ? eventosData : eventosPasadosData;
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 fixed w-full top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between py-3">
-            <button
-              className="md:hidden text-gray-700"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            <div className="flex items-center space-x-3 text-lg sm:text-xl md:text-2xl font-bold text-green-600">
-              <img
-                src={LOGO}
-                className="h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 object-contain"
-                alt="Logo"
-              />
-              <span>RadlukActividades</span>
-            </div>
-            <div className="hidden md:flex flex-1 max-w-md mx-4">
-              <div className="relative w-full">
-                <Input
-                  type="text"
-                  placeholder="Buscar actividades..."
-                  className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg w-full"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-                <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              {/* Dropdown Menu - Desktop */}
-              {usuario ? (
-                <div className="hidden md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="border-green-600 text-green-600"
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        Minha Conta
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem>
-                        <Link to="/inscricao-usuario" className="w-full">
-                          Minhas Inscrições
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Link to="/admin" className="w-full">
-                          Painel Administrativo
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <a href="#" className="w-full">
-                          Logout
-                        </a>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ) : (
-                <Link to="/login" className="w-full">
-                  <Button variant={"ghost"}>Login</Button>
-                </Link>
-              )}
-
-              <p
-                className="underline cursor-pointer text-blue-600 hover:text-blue-700"
-                onClick={navigateToHowToRegister}
-              >
-                Como Inscrever-se?
-              </p>
-            </div>
-          </div>
-
-          {/* Search Bar Mobile */}
-          <div className="pb-3 md:hidden">
-            <div className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Buscar actividades..."
-                className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg w-full"
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile menu overlay */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-white pt-16 px-4 md:hidden">
-          {usuario ? (
-            <div className="space-y-4 py-12 text-lg">
-              <div className="border-b pb-2">
-                <h3 className="font-semibold mb-2">Minha Conta</h3>
-                <div className="space-y-3 pl-2">
-                  <Link
-                    to="/inscricao-usuario"
-                    className="block py-1 text-gray-700 hover:text-green-600"
-                  >
-                    Minhas Inscrições
-                  </Link>
-                  <Link
-                    to="/admin"
-                    className="block py-1 text-gray-700 hover:text-green-600"
-                  >
-                    Painel Administrativo
-                  </Link>
-                  <a
-                    href="#"
-                    onClick={handleLogout}
-                    className="block py-1 text-gray-700 hover:text-red-600"
-                  >
-                    Logout
-                  </a>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4 py-12 text-lg">
-              <div className="border-b pb-2">
-                <div className="space-y-3 pl-2">
-                  <Link
-                    to={"/login"}
-                    className="block py-1 text-gray-700 hover:text-green-600"
-                  >
-                    Login
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
+    <main className="bg-gray-50">
       {/* Conteúdo principal */}
       <div className="pt-16 md:pt-24 px-4 md:px-6 container mx-auto max-w-screen-xl">
+        {/* Tabs para alternar entre eventos próximos e passados */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList className="w-full md:w-auto grid grid-cols-2">
+            <TabsTrigger value="proximos" className="px-8">
+              <Calendar className="mr-2" size={16} />
+              Próximos Eventos
+            </TabsTrigger>
+            <TabsTrigger value="pasados" className="px-8">
+              <Clock className="mr-2" size={16} />
+              Eventos Passados
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {/* Layout principal - Formulário à esquerda e Produtos à direita */}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Formulário de Filtro (à esquerda) */}
@@ -260,6 +143,22 @@ const ContentHome = () => {
                 </h2>
 
                 <div className="space-y-6">
+                  {/* Campo de pesquisa */}
+                  <div className="space-y-2">
+                    <Label className="font-medium flex items-center">
+                      Pesquisar
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        placeholder="Buscar por título"
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="border-green-200 pl-9"
+                      />
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                    </div>
+                  </div>
+
                   {/* Filtro de Data */}
                   <div className="space-y-2">
                     <Label className="font-medium flex items-center">
@@ -271,13 +170,13 @@ const ContentHome = () => {
                       </SelectTrigger>
                       <SelectContent position="popper" className="z-50">
                         <SelectItem value="todas">Todas as datas</SelectItem>
-                        {actividadesData?.map((actividade) => (
+                        {currentDates?.map((evento) => (
                           <SelectItem
-                            key={actividade?.id}
-                            value={actividade?.data_inicio}
+                            key={evento?.id}
+                            value={evento?.data_inicio}
                           >
-                            {formatDate(actividade?.data_inicio)} -{" "}
-                            {formatDate(actividade?.data_fim)}
+                            {formatDate(evento?.data_inicio)} -{" "}
+                            {formatDate(evento?.data_fim)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -297,48 +196,52 @@ const ContentHome = () => {
             </Card>
           </aside>
 
-          {/* Seção de Actividades (à direita) */}
+          {/* Seção de Eventos (à direita) */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="flex flex-col items-center space-y-2">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
-                <p className="text-green-600">Carregando actividades...</p>
+                <p className="text-green-600">Carregando eventos...</p>
               </div>
             </div>
           ) : (
             <div className="flex-1">
-              {/* Grade de Actividades */}
-              {filteredActividades?.length > 0 ? (
+              {/* Grade de Eventos */}
+              {filteredEventos?.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {filteredActividades?.map((actividade) => {
-                      const isAberto = isEventoAberto(actividade.data_fim);
+                    {filteredEventos?.map((evento) => {
+                      const isAberto = isEventoAberto(evento.data_fim);
+                      const statusLabel = activeTab === "proximos" 
+                        ? (isAberto ? "Aberto" : "Fechado")
+                        : "Encerrado";
+                      const statusColor = activeTab === "proximos"
+                        ? (isAberto ? "bg-green-500" : "bg-amber-500")
+                        : "bg-gray-500";
 
                       return (
                         <Card
-                          key={actividade.id}
+                          key={evento.id}
                           className="overflow-hidden p-0 border border-gray-200 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
                         >
                           <div className="relative">
                             <div className="h-48">
                               <img
-                                src={`http://localhost:3333${actividade?.imagens[0]?.url}`}
-                                alt={actividade.titulo}
+                                src={`http://localhost:3333${evento?.imagens[0]?.url}`}
+                                alt={evento.titulo}
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <Badge
-                              className={`absolute top-2 right-2 ${
-                                isAberto ? "bg-green-500" : "bg-green-500"
-                              }`}
+                              className={`absolute top-2 right-2 ${statusColor}`}
                             >
-                              {isAberto ? "Aberto" : "Fechado"}
+                              {statusLabel}
                             </Badge>
                           </div>
 
                           <CardContent className="p-4 flex-grow flex flex-col">
                             <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                              {actividade?.titulo}
+                              {evento?.titulo}
                             </h3>
 
                             <div className="flex items-start space-x-1 text-sm text-gray-600 mb-2">
@@ -347,8 +250,8 @@ const ContentHome = () => {
                                 className="flex-shrink-0 mt-0.5"
                               />
                               <span>
-                                {formatDate(actividade?.data_inicio)} até{" "}
-                                {formatDate(actividade?.data_fim)}
+                                {formatDate(evento?.data_inicio)} até{" "}
+                                {formatDate(evento?.data_fim)}
                               </span>
                             </div>
 
@@ -357,18 +260,18 @@ const ContentHome = () => {
                                 size={16}
                                 className="flex-shrink-0 mt-0.5"
                               />
-                              <span>{actividade?.local}</span>
+                              <span>{evento?.local}</span>
                             </div>
 
                             <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                              {actividade?.descricao}
+                              {evento?.descricao}
                             </p>
                           </CardContent>
 
                           <CardFooter className="p-4 pt-0">
-                            <Link to={`/inscricao?id=${actividade?.id}`}>
+                            <Link to={`/inscricao?id=${evento?.id}`}>
                               <Button className="w-full bg-green-600 hover:bg-green-700">
-                                Ver Detalhes
+                                {activeTab === "proximos" ? "Ver Detalhes" : "Ver Histórico"}
                               </Button>
                             </Link>
                           </CardFooter>
@@ -380,7 +283,7 @@ const ContentHome = () => {
               ) : (
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                   <p className="text-lg text-gray-500">
-                    Nenhum actividade encontrado com os filtros selecionados.
+                    Nenhum evento encontrado com os filtros selecionados.
                   </p>
                   <Button
                     variant="outline"

@@ -34,7 +34,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
   const extractErrorMessage = (errorObj: any): string | null => {
     if (!errorObj) return null;
 
-    const errors = errorObj?.response?.data?.data?.errors; // Pegamos os erros da estrutura correta
+    const errors = errorObj?.response?.data?.erro; // Pegamos os erros da estrutura correta
 
     if (!errors) return "Erro desconhecido."; // Fallback se não existir erros
 

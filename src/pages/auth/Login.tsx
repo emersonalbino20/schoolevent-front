@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Eye, EyeOff, Calendar, User } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LOGO from "@/assets/images/logo.png";
 import { usePostLogin } from "@/api/usuarioQuery";
-import FeedbackDialog from "@/_components/FeedbackDialog";
 import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { schemeLogin } from "@/utils/validateForm";
@@ -29,7 +25,6 @@ import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -37,10 +32,7 @@ import { AlertTriangle } from "lucide-react";
 import { setUserData, getUserData } from "@/hooks/AuthLocal";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const usuario = getUserData();
-  useEffect(() => {
-    usuario && navigate("*");
-  }, []);
+
   const form = useForm({
     resolver: zodResolver(schemeLogin),
     defaultValues: {
@@ -48,10 +40,13 @@ const Login = () => {
       senha: "",
     },
   });
+  const usuario = getUserData();
+  const navigate = useNavigate();
+ 
 
   const { mutate } = usePostLogin();
   const [isFailedDialog, setFailedDialog] = useState(false);
-  const navigate = useNavigate();
+  
   function onSubmit(
     data: any,
     event: React.FormEvent<HTMLFormElement> | undefined
@@ -105,13 +100,13 @@ const Login = () => {
             Bem-vindo(a)
           </CardTitle>
           <CardDescription className="text-center text-gray-500">
-            Faça login para agendar sua quadra
+            Faça login e inscreve-se em uma quadra
           </CardDescription>
         </CardHeader>
 
         <CardContent className="pt-6">
           <Form {...form}>
-            {/* Modificado para passar o actividade para onSubmit */}
+            {/* Modificado para passar o evento para onSubmit */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -147,12 +142,7 @@ const Login = () => {
                   <Label htmlFor="password" className="text-gray-700">
                     Senha
                   </Label>
-                  <Link to={"/forgot-password"}>
-                    <span className="font-medium text-green-600 hover:text-green-700">
-                      Esqueceu a senha?
-                    </span>
-                  </Link>
-                </div>
+                 </div>
                 <div className="relative">
                   <FormField
                     control={form.control}
@@ -217,19 +207,6 @@ const Login = () => {
             </div>
           </DialogContent>
         </Dialog>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-center text-gray-600">
-            Não tem uma conta?{" "}
-            <Link to="/register">
-              <a
-                href="#"
-                className="font-medium text-green-600 hover:text-green-700"
-              >
-                Cadastre-se agora
-              </a>
-            </Link>
-          </div>
-        </CardFooter>
       </Card>
 
       <p className="mt-8 text-center text-sm text-gray-500">
