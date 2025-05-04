@@ -23,7 +23,7 @@ export const usePostComentarios = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: auxPostComentarios,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comentarios"] });
+      queryClient.invalidateQueries({ queryKey: ["eventos"] });
       console.log("success");
     },
     onError: (error) => {

@@ -41,14 +41,12 @@ const Header = () => {
   const navigate = useNavigate();
   const usuario = getUserData();
 
-  
-    useEffect(()=>{
-      if(usuario?.tipo == "administrador"){
-        navigate('/admin');
-      }
-  
-    },[]);
-    
+  useEffect(() => {
+    if (usuario?.tipo == "administrador") {
+      navigate("/admin");
+    }
+  }, []);
+
   function handleLogout() {
     clearUserData(navigate);
   }
@@ -175,7 +173,9 @@ const Header = () => {
                   </DropdownMenu>
                 </div>
               ) : (
-                <Button variant={"ghost"}>Login</Button>
+                <Link to={"/login"}>
+                  <Button variant={"ghost"}>Login</Button>
+                </Link>
               )}
 
               <p
@@ -249,6 +249,8 @@ const Header = () => {
           )}
         </div>
       )}
-      </div>)}
+    </div>
+  );
+};
 
-      export default Header;
+export default Header;

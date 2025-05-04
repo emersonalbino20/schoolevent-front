@@ -11,17 +11,21 @@ export const auxPostLogin = (data) => {
   return axios.post(`http://localhost:${PORT}/login/`, data);
 };
 
-export const auxPostUsuarios = (data) => {
-  return axios.post(`http://localhost:${PORT}/usuarios/`, data);
+export const auxPostUsuarios = (formData) => {
+  return axios.post(`http://localhost:${PORT}/usuarios/`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
-export const auxPutUsuario = (data) => {
-  return axios.put(`http://localhost:${PORT}/usuarios/${data?.id}`, {
-    nome: data?.nome,
-    sobrenome: data?.sobrenome,
-    email: data?.email,
-    tipo: data?.tipo,
-    senha: data?.senha
+export const auxPutUsuario = (formData) => {
+  const userId = formData.get("id");
+
+  return axios.put(`http://localhost:${PORT}/usuarios/${userId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 };
 

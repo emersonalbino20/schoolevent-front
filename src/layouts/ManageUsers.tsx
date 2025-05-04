@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { Users, Edit, Trash2, Save, Shield } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Users, Edit, Save, Shield, Upload, Image } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   useGetUsuarios,
   usePutUsuario,
@@ -20,16 +19,6 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const ManageUsers = () => {
   const formUser = useForm({
@@ -37,6 +26,7 @@ const ManageUsers = () => {
     defaultValues: {
       nome: "",
       sobrenome: "",
+      foto_perfil: null, // Changed to null instead of empty string
     },
   });
 
@@ -45,23 +35,26 @@ const ManageUsers = () => {
     defaultValues: {
       nome: "",
       sobrenome: "",
+      foto_perfil: null, // Changed to null instead of empty string
     },
   });
 
   const [activeTab, setActiveTab] = useState("cadastrar");
   const [modoEdicao, setModoEdicao] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewImageUp, setPreviewImageUp] = useState("");
+  const fileInputRef = useRef(null);
+  const fileInputRefUp = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFileUp, setSelectedFileUp] = useState(null);
 
   // Dados da API
   const { data: usuariosData } = useGetUsuarios();
-  console.log(usuariosData);
-  // Estados para controlar o diálogo
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [erro, setErro] = useState(null);
-  // Estados para o diálogo de confirmação de exclusão
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [usuarioParaExcluir, setUsuarioParaExcluir] = useState(null);
 
   const { mutate: mutateUser } = usePostUsuarios();
   const { mutate: putUser } = usePutUsuario();
@@ -71,21 +64,51 @@ const ManageUsers = () => {
     if (tab === "cadastrar") {
       setModoEdicao(false);
       formUser.reset();
+      setPreviewImage("");
+      setSelectedFile(null);
     }
   };
 
-  // Função para abrir o diálogo de confirmação
-  const openDeleteDialog = (usuario) => {
-    setUsuarioParaExcluir(usuario);
-    setDeleteDialogOpen(true);
-  };
+  const handleImageChange = (e, isUpdate = false) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("Por favor, selecione apenas arquivos de imagem.");
+        return;
+      }
 
-  // Função para confirmar a exclusão
-  const confirmDelete = () => {
-    if (usuarioParaExcluir) {
-      //handleSubmitPatchUser(usuarioParaExcluir.id);
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert("A imagem deve ter menos de 5MB.");
+        return;
+      }
+
+      if (isUpdate) {
+        // Store the actual file object for later form submission
+        setSelectedFileUp(file);
+        formUserUp.setValue("foto_perfil", file);
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            setPreviewImageUp(reader.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Store the actual file object for later form submission
+        setSelectedFile(file);
+        formUser.setValue("foto_perfil", file);
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            setPreviewImage(reader.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
-    setDeleteDialogOpen(false);
   };
 
   function submitUser(
@@ -93,13 +116,41 @@ const ManageUsers = () => {
     event: React.FormEvent<HTMLFormElement> | undefined
   ) {
     event?.preventDefault();
+
+    // Create a FormData object to handle file uploads
+    const formData = new FormData();
+
+    // Add all fields to the FormData object
+    Object.keys(data).forEach((key) => {
+      // Special handling for file
+      if (key === "foto_perfil" && data[key] instanceof File) {
+        formData.append(key, data[key]);
+      }
+      // Skip foto_perfil if it's not a File (e.g., when it's a URL from the server)
+      else if (
+        key === "foto_perfil" &&
+        !(data[key] instanceof File) &&
+        !data[key]
+      ) {
+        // Do nothing - don't append null values for foto_perfil
+      }
+      // Handle all other fields
+      else {
+        formData.append(key, data[key]);
+      }
+    });
+
+    console.log("Form data being sent:", Object.fromEntries(formData));
+
     if (modoEdicao) {
-      putUser(data, {
+      putUser(formData, {
         onSuccess: (response) => {
           setIsSuccess(true);
           setFeedbackMessage("O usuário foi atualizado com sucesso!");
           setDialogOpen(true);
           formUserUp.reset();
+          setPreviewImageUp("");
+          setSelectedFileUp(null);
           setActiveTab("listar");
         },
         onError: (error) => {
@@ -116,12 +167,14 @@ const ManageUsers = () => {
       });
       setModoEdicao(false);
     } else {
-      mutateUser(data, {
+      mutateUser(formData, {
         onSuccess: (response) => {
           setIsSuccess(true);
           setFeedbackMessage("O usuário foi cadastrado com sucesso!");
           setDialogOpen(true);
           formUser.reset();
+          setPreviewImage("");
+          setSelectedFile(null);
           setActiveTab("listar");
         },
         onError: (error) => {
@@ -147,8 +200,21 @@ const ManageUsers = () => {
     formUserUp.setValue("nome", usuario.nome);
     formUserUp.setValue("sobrenome", usuario.sobrenome);
     formUserUp.setValue("email", usuario.email);
- //   formUserUp.setValue("senha", usuario.senha);
     formUserUp.setValue("tipo", usuario.tipo);
+
+    // Reset file selection
+    setSelectedFileUp(null);
+
+    // Se tiver uma foto de perfil, mostra a preview
+    if (usuario.foto_perfil) {
+      setPreviewImageUp(`http://localhost:3333${usuario.foto_perfil}`);
+      // Don't set the foto_perfil field with the URL string
+      // We'll only update it when a new file is selected
+    } else {
+      setPreviewImageUp("");
+      formUserUp.setValue("foto_perfil", null);
+    }
+
     setActiveTab("cadastrar");
   };
 
@@ -207,6 +273,7 @@ const ManageUsers = () => {
                     e.preventDefault();
                     formUser.handleSubmit((data) => submitUser(data, e))();
                   }}
+                  encType="multipart/form-data"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -250,6 +317,58 @@ const ManageUsers = () => {
                         )}
                       />
                     </div>
+
+                    <div className="md:col-span-2">
+                      <FormField
+                        control={formUser.control}
+                        name="foto_perfil"
+                        render={({ field: { value, onChange, ...field } }) => (
+                          <FormItem>
+                            <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                              Foto de Perfil
+                            </FormLabel>
+                            <FormControl>
+                              <div className="flex flex-col items-center">
+                                {/* Área de preview */}
+                                {previewImage && (
+                                  <div className="mb-2 border rounded-md p-2">
+                                    <img
+                                      src={previewImage}
+                                      alt="Preview"
+                                      className="w-32 h-32 object-cover rounded-full"
+                                    />
+                                  </div>
+                                )}
+
+                                {/* Input de arquivo oculto */}
+                                <Input
+                                  {...field}
+                                  type="file"
+                                  accept="image/*"
+                                  ref={fileInputRef}
+                                  onChange={(e) => handleImageChange(e)}
+                                  className="hidden"
+                                />
+
+                                {/* Botão customizado para upload */}
+                                <button
+                                  type="button"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="flex items-center justify-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 w-full"
+                                >
+                                  <Upload size={16} className="mr-2" />
+                                  {previewImage
+                                    ? "Trocar imagem"
+                                    : "Carregar imagem"}
+                                </button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <div>
                       <FormField
                         control={formUser.control}
@@ -342,6 +461,7 @@ const ManageUsers = () => {
                     e.preventDefault();
                     formUserUp.handleSubmit((data) => submitUser(data, e))();
                   }}
+                  encType="multipart/form-data"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -385,6 +505,60 @@ const ManageUsers = () => {
                         )}
                       />
                     </div>
+
+                    <div className="md:col-span-2">
+                      <FormField
+                        control={formUserUp.control}
+                        name="foto_perfil"
+                        render={({ field: { value, onChange, ...field } }) => (
+                          <FormItem>
+                            <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                              Foto de Perfil
+                            </FormLabel>
+                            <FormControl>
+                              <div className="flex flex-col items-center">
+                                {/* Área de preview */}
+                                {previewImageUp && (
+                                  <div className="mb-2 border rounded-md p-2">
+                                    <img
+                                      src={previewImageUp}
+                                      alt="Preview"
+                                      className="w-32 h-32 object-cover rounded-full"
+                                    />
+                                  </div>
+                                )}
+
+                                {/* Input de arquivo oculto */}
+                                <Input
+                                  {...field}
+                                  type="file"
+                                  accept="image/*"
+                                  ref={fileInputRefUp}
+                                  onChange={(e) => handleImageChange(e, true)}
+                                  className="hidden"
+                                />
+
+                                {/* Botão customizado para upload */}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    fileInputRefUp.current?.click()
+                                  }
+                                  className="flex items-center justify-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 w-full"
+                                >
+                                  <Upload size={16} className="mr-2" />
+                                  {previewImageUp
+                                    ? "Trocar imagem"
+                                    : "Carregar imagem"}
+                                </button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <div>
                       <FormField
                         control={formUserUp.control}
@@ -414,27 +588,27 @@ const ManageUsers = () => {
                         )}
                       />
                     </div>
-                  </div>
-                  <div>
-                    <FormField
-                      control={formUserUp.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="email"
-                              className="w-full p-2 border border-gray-300 rounded-md"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div>
+                      <FormField
+                        control={formUserUp.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                              Email
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="email"
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <FormField
@@ -479,6 +653,9 @@ const ManageUsers = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                      Foto
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                       Nome
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
@@ -500,8 +677,21 @@ const ManageUsers = () => {
                     return (
                       <tr key={usuario.id}>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          {usuario.nome} {usuario.sobrenome}
+                          {usuario.foto_perfil ? (
+                            <img
+                              src={`http://localhost:3333${usuario.foto_perfil}`}
+                              alt={`${usuario.nome}`}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                              <Image size={16} className="text-gray-500" />
+                            </div>
+                          )}
                         </td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          {usuario.nome} {usuario.sobrenome}
+			</td>
                         <td className="px-4 py-2 whitespace-nowrap">
                           {usuario.email}
                         </td>
@@ -527,12 +717,6 @@ const ManageUsers = () => {
                           >
                             <Edit size={16} />
                           </button>
-                          {/*<button
-                            onClick={() => handleSubmitPatchUser(usuario)}
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            <Trash2 size={16} />
-                          </button>*/}
                         </td>
                       </tr>
                     );
@@ -552,29 +736,6 @@ const ManageUsers = () => {
         message={feedbackMessage}
         errorData={erro}
       />
-
-      {/* Confirmation Dialog for Delete */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja deletar o usuário "
-              {usuarioParaExcluir?.name?.substring(0, 20)}..."? Esta ação não
-              pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Deletar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

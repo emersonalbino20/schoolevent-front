@@ -47,6 +47,10 @@ export const schemeLogin = z.object({
 });
 
 export const schemeUser = z.object({
+  foto_perfil: z.union([
+  z.string().url(),       // para preview ou dados existentes no update
+  z.instanceof(File)      // para novo upload
+]).optional(),
   nome: z
     .string()
     .trim()
@@ -90,7 +94,11 @@ export const schemeUserUp = z.object({
       message: "ID inválido",
     })
     .optional(),
-  nome: z
+  foto_perfil: z.union([
+  z.string().url(),       // para preview ou dados existentes no update
+  z.instanceof(File)      // para novo upload
+]).optional(),
+   nome: z
     .string()
     .trim()
     .min(3, { message: "O nome deve ter pelo menos 3 caracteres" })
@@ -112,7 +120,7 @@ export const schemeUserUp = z.object({
     .trim()
     .email({ message: "Digite um e-mail válido" })
     .max(255, { message: "O e-mail não pode ter mais de 255 caracteres" }),
-  
+
   tipo: z
     .enum(["administrador", "professor", "aluno"], {
       message: "Tipo de usuário inválido",
@@ -148,7 +156,7 @@ export const schemeMyProfileUp = z.object({
     .trim()
     .email({ message: "Digite um e-mail válido" })
     .max(255, { message: "O e-mail não pode ter mais de 255 caracteres" }),
-    senha: z
+  senha: z
     .string()
     .trim()
     .regex(passwordRegex, {
@@ -227,10 +235,10 @@ export const schemeEvento = z
       const diffMs = dataFim.getTime() - dataInicio.getTime();
       const diffHours = diffMs / (1000 * 60 * 60); // converte ms para horas
 
-      return diffHours >= 1 && diffHours <= 10;
+      return diffHours >= 1 && diffHours <= 744;
     },
     {
-      message: "A duração do evento deve ser entre 1 e 10 horas",
+      message: "A duração do evento deve ser entre 1 hora e 31 dias (mês)",
       path: ["data_fim"],
     }
   );
@@ -306,10 +314,10 @@ export const schemeEventoUp = z
       const diffMs = dataFim.getTime() - dataInicio.getTime();
       const diffHours = diffMs / (1000 * 60 * 60); // converte ms para horas
 
-      return diffHours >= 1 && diffHours <= 10;
+      return diffHours >= 1 && diffHours <= 744;
     },
     {
-      message: "A duração do evento deve ser entre 1 e 10 horas",
+      message: "A duração do evento deve ser entre 1 hora e 31 dias (mês)",
       path: ["data_fim"],
     }
   );

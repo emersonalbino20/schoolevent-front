@@ -122,11 +122,11 @@ const ContentHome = () => {
           <TabsList className="w-full md:w-auto grid grid-cols-2">
             <TabsTrigger value="proximos" className="px-8">
               <Calendar className="mr-2" size={16} />
-              Próximos Eventos
+              Próximas Actividades
             </TabsTrigger>
             <TabsTrigger value="pasados" className="px-8">
               <Clock className="mr-2" size={16} />
-              Eventos Passados
+              Actividades Passadas
             </TabsTrigger>
           </TabsList>
         </Tabs>

@@ -25,13 +25,13 @@ const InscricaoEvento = () => {
   const id = searchParams.get("id");
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(usuario?.tipo == "administrador"){
-      navigate('/admin');
+  useEffect(() => {
+    if (usuario?.tipo == "administrador") {
+      navigate("/admin");
     }
-
-  },[]);
+  }, []);
   const { data: evento, isLoading: isLoadingEvento } = useGetEvento(id);
+  console.log(evento);
   const r = evento?.data[0]?.inscricoes?.some(
     (inscricao: any) => inscricao.usuario.email === usuario?.email
   );
@@ -165,7 +165,7 @@ const InscricaoEvento = () => {
           onClick={handleVoltar}
         >
           <ArrowLeft className="mr-2" size={18} />
-          Voltar para Eventos
+          Voltar para Actividades
         </Button>
 
         {isLoadingEvento ? (
@@ -344,21 +344,24 @@ const InscricaoEvento = () => {
             )}
 
             {/* Área de inscrição */}
+	  {isEventoAberto(evento.data[0]?.data_fim) && (
             <Card className="shadow-md">
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Realizar Inscrição
                 </h2>
                 {usuario ? (
-                <p className="text-gray-700 mb-6">
-                  Para participar deste evento, clique no botão abaixo para
-                  ir para a tela de login. Após a inscrição, você receberá todas
-                  as informações necessárias.
-                </p>
-                ):(<p className="text-gray-700 mb-6">
-                  Para participar deste evento, clique no botão abaixo para
-                  Login e continue com a sua inscrição.
-                </p>)}
+                  <p className="text-gray-700 mb-6">
+                    Para participar deste evento, clique no botão abaixo para ir
+                    para a tela de login. Após a inscrição, você receberá todas
+                    as informações necessárias.
+                  </p>
+                ) : (
+                  <p className="text-gray-700 mb-6">
+                    Para participar deste evento, clique no botão abaixo para
+                    Login e continue com a sua inscrição.
+                  </p>
+                )}
               </CardContent>
               <CardFooter className="bg-gray-50 p-6 border-t">
                 <Button
@@ -374,7 +377,6 @@ const InscricaoEvento = () => {
                     )
                   }
                 >
-                  
                   {isInscrevendo ? (
                     <>
                       <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
@@ -396,7 +398,7 @@ const InscricaoEvento = () => {
                   )}
                 </Button>
               </CardFooter>
-            </Card>
+            </Card>)}
           </>
         ) : (
           <Alert className="bg-green-50 border-green-200">
@@ -409,10 +411,10 @@ const InscricaoEvento = () => {
             </AlertDescription>
           </Alert>
         )}
-         {/* Adicione a seção de comentários */}
-    {evento?.data && evento.data.length > 0 && (
-      <ComentariosEvento evento={evento.data[0]} />
-    )}
+        {/* Adicione a seção de comentários */}
+        {evento?.data && evento.data.length > 0 && (
+          <ComentariosEvento evento={evento.data[0]} />
+        )}
       </div>
     </main>
   );

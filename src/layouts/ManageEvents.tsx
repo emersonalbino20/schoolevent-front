@@ -44,7 +44,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { getUserData } from "@/hooks/AuthLocal";
 
 const ManageEvents = () => {
-
   const usuario = getUserData();
   const formEvento = useForm({
     resolver: zodResolver(schemeEvento),
@@ -82,7 +81,6 @@ const ManageEvents = () => {
 
   // Dados da API
   const { data: eventosData } = useGetEventos();
-  console.log(eventosData)
   // Estados para controlar o diálogo
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -169,7 +167,8 @@ const ManageEvents = () => {
     });
     formData.append("evento_id", eventoId);
     postImagens(formData, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        console.log(formData);
         setIsSuccess(true);
         setFeedbackMessage("Imagens enviadas com sucesso!");
         setSelectedFiles([]);
@@ -191,46 +190,54 @@ const ManageEvents = () => {
   ) {
     event?.preventDefault();
     if (modoEdicao) {
-      console.log(criador_info?.inscricoes?.length)
-      if(criador_info?.criador?.email !== usuario?.email){
-        setErro({response: { data: { erro: `Actividade criada pelo(a) sr(a). 
+      console.log(criador_info?.inscricoes?.length);
+      if (criador_info?.criador?.email !== usuario?.email) {
+        setErro({
+          response: {
+            data: {
+              erro: `Actividade criada pelo(a) sr(a). 
           ${criador_info?.criador?.nome} ${criador_info?.criador?.sobrenome}, contacte o criador para o editar o evento 
-          ${criador_info?.criador?.email}` }}});
-          setIsSuccess(false);
-          setFeedbackMessage(
-            "Acesso Negado."
-          );
-          setDialogOpen(true);
-      }else if(criador_info?.inscricoes?.length > 0){
-        setErro({response: { data: { erro: `A Actividade já possui ${criador_info?.inscricoes?.length} usuários inscritos, os 
-          dados já não podem ser editados` }}});
-          setIsSuccess(false);
-          setFeedbackMessage(
-            "Edição Não Permitidade."
-          );
-          setDialogOpen(true);
-      }else{
-      putEvento(data, {
-        onSuccess: (response) => {
-          setIsSuccess(true);
-          setFeedbackMessage("O evento foi atualizado com sucesso!");
-          setDialogOpen(true);
-          formEventoUp.reset();
-          setActiveTab("listar");
-        },
-        onError: (error) => {
-          setErro(error);
-          setIsSuccess(false);
-          setFeedbackMessage(
-            "Não foi possível atualizar o evento. Verifique seus dados e tente novamente."
-          );
-          setDialogOpen(true);
-          setModoEdicao(true);
-          setActiveTab("cadastrar");
-        },
-      });
-      setModoEdicao(false);
-    }
+          ${criador_info?.criador?.email}`,
+            },
+          },
+        });
+        setIsSuccess(false);
+        setFeedbackMessage("Acesso Negado.");
+        setDialogOpen(true);
+      } else if (criador_info?.inscricoes?.length > 0) {
+        setErro({
+          response: {
+            data: {
+              erro: `A Actividade já possui ${criador_info?.inscricoes?.length} usuários inscritos, os 
+          dados já não podem ser editados`,
+            },
+          },
+        });
+        setIsSuccess(false);
+        setFeedbackMessage("Edição Não Permitidade.");
+        setDialogOpen(true);
+      } else {
+        putEvento(data, {
+          onSuccess: (response) => {
+            setIsSuccess(true);
+            setFeedbackMessage("O evento foi atualizado com sucesso!");
+            setDialogOpen(true);
+            formEventoUp.reset();
+            setActiveTab("listar");
+          },
+          onError: (error) => {
+            setErro(error);
+            setIsSuccess(false);
+            setFeedbackMessage(
+              "Não foi possível atualizar o evento. Verifique seus dados e tente novamente."
+            );
+            setDialogOpen(true);
+            setModoEdicao(true);
+            setActiveTab("cadastrar");
+          },
+        });
+        setModoEdicao(false);
+      }
     } else {
       mutateEvento(
         {
@@ -276,7 +283,7 @@ const ManageEvents = () => {
 
   const iniciarEdicao = (evento) => {
     setModoEdicao(true);
-    setCriador_info(evento)
+    setCriador_info(evento);
     formEventoUp.setValue("id", evento.id);
     formEventoUp.setValue("titulo", evento.titulo);
     formEventoUp.setValue("descricao", evento.descricao);
@@ -302,11 +309,6 @@ const ManageEvents = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  // Função para obter o domínio base da URL atual
-  const getBaseUrl = () => {
-    return window.location.origin;
   };
 
   return (
@@ -744,7 +746,8 @@ const ManageEvents = () => {
                         </span>
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {evento?.criador?.nome} {evento?.criador?.sobrenome} ({evento?.criador?.tipo})
+                        {evento?.criador?.nome} {evento?.criador?.sobrenome} (
+                        {evento?.criador?.tipo})
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
                         {formatarData(evento.data_inicio)}
@@ -752,7 +755,7 @@ const ManageEvents = () => {
                       <td className="px-4 py-2 whitespace-nowrap">
                         {formatarData(evento.data_fim)}
                       </td>
-                      
+
                       <td className="px-4 py-2 whitespace-nowrap text-center">
                         <button
                           onClick={() => showEventImages(evento)}

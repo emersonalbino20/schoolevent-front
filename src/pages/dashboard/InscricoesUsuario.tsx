@@ -22,12 +22,11 @@ const InscricoesUsuario = () => {
   const usuario = getUserData();
   const navigate = useNavigate();
 
-  useEffect(()=>{
-      if(usuario?.tipo == "administrador"){
-        navigate('/admin');
-      }
-  
-    },[]);
+  useEffect(() => {
+    if (usuario?.tipo == "administrador") {
+      navigate("/admin");
+    }
+  }, []);
 
   // Buscar inscrições do usuário
   const {
@@ -98,6 +97,7 @@ const InscricoesUsuario = () => {
         });
       },
       onError: (err) => {
+	console.log(err);
         setComentarioStatus({
           ...comentarioStatus,
           [eventoId]: {
@@ -146,7 +146,7 @@ const InscricoesUsuario = () => {
         </Button>
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-          Meus Eventos
+          Minhas Actividades
         </h1>
 
         {isLoading ? (
@@ -172,8 +172,8 @@ const InscricoesUsuario = () => {
               Nenhuma inscrição encontrada
             </AlertTitle>
             <AlertDescription className="text-blue-700">
-              Você ainda não está inscrito em nenhum evento. Explore os eventos
-              disponíveis e inscreva-se!
+              Você ainda não está inscrito em nenhum actividade. Explore as
+              actividades disponíveis e inscreva-se!
             </AlertDescription>
           </Alert>
         ) : (
@@ -263,10 +263,10 @@ const InscricoesUsuario = () => {
                     <div className="w-full mb-4">
                       <p className="font-medium text-gray-700 mb-2 flex items-center">
                         <MessageSquare className="h-5 w-5 text-green-600 mr-2" />
-                        Deixe seu comentário sobre o evento
+                        Deixe seu comentário sobre o actividade
                       </p>
                       <Textarea
-                        placeholder="Compartilhe sua experiência ou feedback sobre este evento..."
+                        placeholder="Compartilhe sua experiência ou feedback sobre esta actividade..."
                         value={comentarios[inscricao.evento.id] || ""}
                         onChange={(e) =>
                           handleComentarioChange(
@@ -288,9 +288,10 @@ const InscricoesUsuario = () => {
                     )}
 
                     {comentarioStatus[inscricao.evento.id]?.error && (
-                      <Alert className="mb-4 bg-green-50 border-green-200">
-                        <AlertDescription className="text-green-700">
-                          {comentarioStatus[inscricao.evento.id].message}
+                      <Alert className="mb-4 bg-red-50 border-red-400">
+                        <AlertDescription className="text-red-700">
+                          {/*comentarioStatus[inscricao.evento.id].message*/}
+			Limite de comentários excedido.
                         </AlertDescription>
                       </Alert>
                     )}

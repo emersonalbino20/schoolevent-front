@@ -311,6 +311,7 @@ const AdminPanel = () => {
     </div>
   );
 
+
   // Componente do Sidebar para reutilização
   const SidebarContent = () => (
     <>
