@@ -134,6 +134,13 @@ const InscricaoEvento = () => {
     navigate(-1);
   };
 
+  // Verificar se evento já ocorreu
+  const isEventoEncerrado = (dataFim) => {
+    if (!dataFim) return false;
+    const hoje = new Date();
+    const fimEvento = new Date(dataFim);
+    return fimEvento < hoje;
+  };
   return (
     <main className="min-h-screen bg-gray-50 pb-10">
       {/* Header */}
@@ -236,7 +243,7 @@ const InscricaoEvento = () => {
                 {!isEventoAberto(evento.data[0]?.data_fim) && (
                   <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
                     <div className="bg-red-500 text-white px-6 py-3 rounded-md text-lg font-bold">
-                      Evento Encerrado
+                      Actividade Encerrada
                     </div>
                   </div>
                 )}
@@ -412,7 +419,7 @@ const InscricaoEvento = () => {
           </Alert>
         )}
         {/* Adicione a seção de comentários */}
-        {evento?.data && evento.data.length > 0 && (
+        {isEventoEncerrado(evento?.data[0]?.data_fim) && (
           <ComentariosEvento evento={evento.data[0]} />
         )}
       </div>

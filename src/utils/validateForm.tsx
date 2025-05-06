@@ -47,10 +47,12 @@ export const schemeLogin = z.object({
 });
 
 export const schemeUser = z.object({
-  foto_perfil: z.union([
-  z.string().url(),       // para preview ou dados existentes no update
-  z.instanceof(File)      // para novo upload
-]).optional(),
+  foto_perfil: z
+    .union([
+      z.string().url(), // para preview ou dados existentes no update
+      z.instanceof(File), // para novo upload
+    ])
+    .optional(),
   nome: z
     .string()
     .trim()
@@ -94,11 +96,13 @@ export const schemeUserUp = z.object({
       message: "ID inválido",
     })
     .optional(),
-  foto_perfil: z.union([
-  z.string().url(),       // para preview ou dados existentes no update
-  z.instanceof(File)      // para novo upload
-]).optional(),
-   nome: z
+  foto_perfil: z
+    .union([
+      z.string().url(), // para preview ou dados existentes no update
+      z.instanceof(File), // para novo upload
+    ])
+    .optional(),
+  nome: z
     .string()
     .trim()
     .min(3, { message: "O nome deve ter pelo menos 3 caracteres" })
@@ -321,3 +325,14 @@ export const schemeEventoUp = z
       path: ["data_fim"],
     }
   );
+
+export const schemeTexto = z.object({
+  texto: z
+    .string()
+    .trim()
+    .min(10, { message: "O texto deve ter pelo menos 10 caracteres" })
+    .max(50, { message: "A texto não pode ter mais de 50 caracteres" })
+    .regex(descriptionRegex, {
+      message: "O texto contém caracteres inválidos",
+    }),
+});

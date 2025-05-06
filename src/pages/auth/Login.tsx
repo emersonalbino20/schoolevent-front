@@ -31,6 +31,13 @@ import {
 import { AlertTriangle } from "lucide-react";
 import { setUserData, getUserData } from "@/hooks/AuthLocal";
 const Login = () => {
+
+  useEffect(() => {
+    if (usuario) {
+      navigate('/');
+    }
+  }, []);
+
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
@@ -100,7 +107,7 @@ const Login = () => {
             Bem-vindo(a)
           </CardTitle>
           <CardDescription className="text-center text-gray-500">
-            Faça login e inscreve-se em uma quadra
+            Faça login e inscreve-se em uma actividade
           </CardDescription>
         </CardHeader>
 

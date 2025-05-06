@@ -22,6 +22,7 @@ import ManageProfile from "@/layouts/ManageProfile";
 import ManageEvents from "@/layouts/ManageEvents";
 import ManageComments from "@/layouts/ManageComments";
 import { useGetEventos } from "@/api/eventoQuery";
+import ParticipantsDialog from "./ParticipantsDialog"; // Importando o componente de Dialog
 
 // Importando os componentes UI do primeiro componente
 import {
@@ -51,9 +52,21 @@ const AdminPanel = () => {
     usuario.tipo === "aluno" ? "profile" : "dashboard"
   );
   const { data: eventos = [] } = useGetEventos();
+  
+  // Estado para controlar o dialog de participantes
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Função para abrir o dialog com o evento selecionado
+  const openParticipantsDialog = (evento, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedEvent(evento);
+    setDialogOpen(true);
   };
 
   // Dashboard component functions
@@ -191,7 +204,12 @@ const AdminPanel = () => {
                   <CardHeader className="pb-2">
                     <div className="flex justify-between">
                       <CardTitle>{evento.titulo}</CardTitle>
-                      <Badge>{evento.inscricoes?.length || 0} inscritos</Badge>
+                      <Badge 
+                        className="cursor-pointer hover:bg-blue-100 transition-colors"
+                        onClick={(e) => openParticipantsDialog(evento, e)}
+                      >
+                        {evento.inscricoes?.length || 0} inscritos
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-2">
                       {evento.descricao}
@@ -238,10 +256,10 @@ const AdminPanel = () => {
                   <div className="flex justify-between text-sm">
                     <span>{location}</span>
                     <span className="font-medium">
-                      {count as number} eventos
+                      {count} eventos
                     </span>
                   </div>
-                  <Progress value={((count as number) / totalEvents) * 100} />
+                  <Progress value={(count / totalEvents) * 100} />
                 </div>
               ))}
             </CardContent>
@@ -308,6 +326,13 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Dialog de participantes */}
+      <ParticipantsDialog 
+        isOpen={dialogOpen} 
+        onClose={() => setDialogOpen(false)} 
+        evento={selectedEvent}
+      />
     </div>
   );
 
