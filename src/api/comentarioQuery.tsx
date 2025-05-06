@@ -60,11 +60,12 @@ export const useGetComentarios = () => {
   });
 };
 
-export const useGetUsuario = (id) => {
-  const { data, isFetched, isLoading } = useQuery({
-    queryKey: ["comentarios", id],
-    queryFn: () => axios.get(`http://localhost:3333/comentarios/${id}`),
-    enabled: !!id,
+export const useGetComentariosUsuario = (usuario_id) => {
+  const { data, isFetched, isLoading, error } = useQuery({
+    queryKey: ["comentarios-usuario", usuario_id],
+    queryFn: () =>
+      axios.get(`http://localhost:3333/comentarios/${Number(usuario_id)}`),
+    enabled: !!usuario_id,
   });
-  return { data, isFetched, isLoading };
+  return { data, isFetched, isLoading, error };
 };

@@ -18,6 +18,8 @@ import { usePostInscricao } from "@/api/inscricaoQuery";
 import LOGO from "@/assets/images/logo.png";
 import { getUserData } from "@/hooks/AuthLocal";
 import ComentariosEvento from "@/_components/ComentariosEvento";
+import { useGetDestaques } from "@/api/destaqueQuery";
+import AlunosDestacados from "@/_components/AlunosDestacados";
 
 const InscricaoEvento = () => {
   const usuario = getUserData();
@@ -31,7 +33,10 @@ const InscricaoEvento = () => {
     }
   }, []);
   const { data: evento, isLoading: isLoadingEvento } = useGetEvento(id);
-  console.log(evento);
+
+  const { data: destaques } = useGetDestaques(id);
+  console.log(destaques?.data?.alunosDestacados);
+
   const r = evento?.data[0]?.inscricoes?.some(
     (inscricao: any) => inscricao.usuario.email === usuario?.email
   );
@@ -351,61 +356,62 @@ const InscricaoEvento = () => {
             )}
 
             {/* Área de inscrição */}
-	  {isEventoAberto(evento.data[0]?.data_fim) && (
-            <Card className="shadow-md">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Realizar Inscrição
-                </h2>
-                {usuario ? (
-                  <p className="text-gray-700 mb-6">
-                    Para participar deste evento, clique no botão abaixo para ir
-                    para a tela de login. Após a inscrição, você receberá todas
-                    as informações necessárias.
-                  </p>
-                ) : (
-                  <p className="text-gray-700 mb-6">
-                    Para participar deste evento, clique no botão abaixo para
-                    Login e continue com a sua inscrição.
-                  </p>
-                )}
-              </CardContent>
-              <CardFooter className="bg-gray-50 p-6 border-t">
-                <Button
-                  className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6"
-                  onClick={handleInscricao}
-                  disabled={
-                    !isEventoAberto(evento.data[0]?.data_fim) ||
-                    inscricaoStatus.success ||
-                    isInscrevendo ||
-                    evento?.data[0]?.inscricoes?.some(
-                      (inscricao: any) =>
-                        inscricao.usuario.email === usuario?.email
-                    )
-                  }
-                >
-                  {isInscrevendo ? (
-                    <>
-                      <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      Processando...
-                    </>
-                  ) : inscricaoStatus.success ||
-                    evento?.data[0]?.inscricoes?.some(
-                      (inscricao: any) =>
-                        inscricao.usuario.email === usuario?.email
-                    ) ? (
-                    <>
-                      <Check className="mr-2" size={18} />
-                      Inscrito
-                    </>
-                  ) : !isEventoAberto(evento.data[0]?.data_fim) ? (
-                    "Inscrições Encerradas"
+            {isEventoAberto(evento.data[0]?.data_fim) && (
+              <Card className="shadow-md">
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                    Realizar Inscrição
+                  </h2>
+                  {usuario ? (
+                    <p className="text-gray-700 mb-6">
+                      Para participar deste evento, clique no botão abaixo para
+                      ir para a tela de login. Após a inscrição, você receberá
+                      todas as informações necessárias.
+                    </p>
                   ) : (
-                    "Confirmar Inscrição"
+                    <p className="text-gray-700 mb-6">
+                      Para participar deste evento, clique no botão abaixo para
+                      Login e continue com a sua inscrição.
+                    </p>
                   )}
-                </Button>
-              </CardFooter>
-            </Card>)}
+                </CardContent>
+                <CardFooter className="bg-gray-50 p-6 border-t">
+                  <Button
+                    className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6"
+                    onClick={handleInscricao}
+                    disabled={
+                      !isEventoAberto(evento.data[0]?.data_fim) ||
+                      inscricaoStatus.success ||
+                      isInscrevendo ||
+                      evento?.data[0]?.inscricoes?.some(
+                        (inscricao: any) =>
+                          inscricao.usuario.email === usuario?.email
+                      )
+                    }
+                  >
+                    {isInscrevendo ? (
+                      <>
+                        <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        Processando...
+                      </>
+                    ) : inscricaoStatus.success ||
+                      evento?.data[0]?.inscricoes?.some(
+                        (inscricao: any) =>
+                          inscricao.usuario.email === usuario?.email
+                      ) ? (
+                      <>
+                        <Check className="mr-2" size={18} />
+                        Inscrito
+                      </>
+                    ) : !isEventoAberto(evento.data[0]?.data_fim) ? (
+                      "Inscrições Encerradas"
+                    ) : (
+                      "Confirmar Inscrição"
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            )}
           </>
         ) : (
           <Alert className="bg-green-50 border-green-200">
@@ -420,7 +426,11 @@ const InscricaoEvento = () => {
         )}
         {/* Adicione a seção de comentários */}
         {isEventoEncerrado(evento?.data[0]?.data_fim) && (
-          <ComentariosEvento evento={evento.data[0]} />
+          <>
+            <ComentariosEvento evento={evento.data[0]} />
+            {/* Adicione a seção de alunos destacados */}
+            <AlunosDestacados alunosDestacados={destaques?.data?.alunosDestacados} />
+          </>
         )}
       </div>
     </main>

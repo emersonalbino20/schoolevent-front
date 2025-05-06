@@ -9,7 +9,6 @@ export const auxPostFeedbacks = (data) => {
   return axios.post(`http://localhost:3333/feedbacks/`, data);
 };
 
-
 //main functions
 export const usePostFeedbacks = () => {
   const queryClient = useQueryClient();
@@ -24,4 +23,14 @@ export const usePostFeedbacks = () => {
     },
   });
   return { mutate, isPending };
+};
+
+export const useGetFeedbacksUsuario = (usuario_id) => {
+  const { data, isFetched, isLoading, error } = useQuery({
+    queryKey: ["feedbacks-usuario", usuario_id],
+    queryFn: () =>
+      axios.get(`http://localhost:3333/feedbacks/${Number(usuario_id)}`),
+    enabled: !!usuario_id,
+  });
+  return { data, isFetched, isLoading, error };
 };

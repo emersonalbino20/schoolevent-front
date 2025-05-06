@@ -38,7 +38,6 @@ const ManageProfile = () => {
 
   // Buscar dados do usuário
   const { data: userData, isLoading } = useGetUsuario(usuario.usuario_id);
-  console.log(userData);
   const { mutate: updateUser } = usePutUsuario();
 
   // Preencher o formulário quando os dados do usuário estiverem disponíveis
@@ -58,7 +57,6 @@ const ManageProfile = () => {
       const { senha, ...dataWithoutPassword } = data;
       data = dataWithoutPassword;
     }
-
     updateUser(data, {
       onSuccess: () => {
         setIsSuccess(true);
@@ -66,7 +64,6 @@ const ManageProfile = () => {
         setDialogOpen(true);
       },
       onError: (error) => {
-        console.error(error);
         setErro(error);
         setIsSuccess(false);
         setFeedbackMessage(
@@ -126,6 +123,7 @@ const ManageProfile = () => {
                           <Input
                             {...field}
                             className="w-full p-2 border border-gray-300 rounded-md"
+                            disabled={true}
                           />
                         </FormControl>
                         <FormMessage />
@@ -147,6 +145,7 @@ const ManageProfile = () => {
                           <Input
                             {...field}
                             className="w-full p-2 border border-gray-300 rounded-md"
+                            disabled={true}
                           />
                         </FormControl>
                         <FormMessage />
@@ -169,6 +168,7 @@ const ManageProfile = () => {
                             {...field}
                             type="email"
                             className="w-full p-2 border border-gray-300 rounded-md"
+                            disabled={true}
                           />
                         </FormControl>
                         <FormMessage />
@@ -190,6 +190,7 @@ const ManageProfile = () => {
                           <Input
                             {...field}
                             type="password"
+                            disabled={true}
                             className="w-full p-2 border border-gray-300 rounded-md"
                             placeholder="Digite apenas se quiser alterar sua senha"
                           />

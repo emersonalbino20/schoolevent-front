@@ -20,7 +20,7 @@ export const auxPostUsuarios = (formData) => {
 };
 
 export const auxPutUsuario = (formData) => {
-  const userId = formData.get("id");
+  const userId = formData.id;
 
   return axios.put(`http://localhost:${PORT}/usuarios/${userId}`, formData, {
     headers: {

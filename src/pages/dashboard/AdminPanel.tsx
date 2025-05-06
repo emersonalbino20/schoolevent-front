@@ -40,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { getUserData, clearUserData } from "@/hooks/AuthLocal";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
+import ManageFeedbacks from "@/layouts/ManageFeedbacks";
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const AdminPanel = () => {
     usuario.tipo === "aluno" ? "profile" : "dashboard"
   );
   const { data: eventos = [] } = useGetEventos();
-  
+
   // Estado para controlar o dialog de participantes
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -204,7 +205,7 @@ const AdminPanel = () => {
                   <CardHeader className="pb-2">
                     <div className="flex justify-between">
                       <CardTitle>{evento.titulo}</CardTitle>
-                      <Badge 
+                      <Badge
                         className="cursor-pointer hover:bg-blue-100 transition-colors"
                         onClick={(e) => openParticipantsDialog(evento, e)}
                       >
@@ -256,10 +257,10 @@ const AdminPanel = () => {
                   <div className="flex justify-between text-sm">
                     <span>{location}</span>
                     <span className="font-medium">
-                      {count} eventos
+                      {count as number} eventos
                     </span>
                   </div>
-                  <Progress value={(count / totalEvents) * 100} />
+                  <Progress value={((count as number) / totalEvents) * 100} />
                 </div>
               ))}
             </CardContent>
@@ -326,16 +327,15 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* Dialog de participantes */}
-      <ParticipantsDialog 
-        isOpen={dialogOpen} 
-        onClose={() => setDialogOpen(false)} 
+      <ParticipantsDialog
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
         evento={selectedEvent}
       />
     </div>
   );
-
 
   // Componente do Sidebar para reutilização
   const SidebarContent = () => (
@@ -356,16 +356,17 @@ const AdminPanel = () => {
           Principal
         </div>
         <Link to={"/"}>
-        {usuario.tipo === "administrador" ? (
-          ""
-        ) : (
-          <a
-            href="#"
-            className={`flex items-center px-4 py-3 ${"text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}`}
-          >
-            <FaHome size={20} className="mr-3" />
-            <span>Home</span>
-          </a>)}
+          {usuario.tipo === "administrador" ? (
+            ""
+          ) : (
+            <a
+              href="#"
+              className={`flex items-center px-4 py-3 ${"text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}`}
+            >
+              <FaHome size={20} className="mr-3" />
+              <span>Home</span>
+            </a>
+          )}
         </Link>
         {usuario.tipo === "aluno" ? (
           ""
@@ -450,14 +451,14 @@ const AdminPanel = () => {
             <span>Destaques</span>
           </a>
         )}
-        {usuario.tipo === "professor" && (
+        {usuario.tipo !== "administrador" && (
           <a
             href="#"
             onClick={() => {
-              setSelect("modulo");
+              setSelect("feedbacks");
             }}
             className={`flex items-center px-4 py-3 ${
-              select === "modulo"
+              select === "feedbacks"
                 ? "text-white bg-gray-800"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
             }`}
@@ -572,6 +573,7 @@ const AdminPanel = () => {
         {select === "profile" && <ManageProfile />}
         {select === "eventos" && <ManageEvents />}
         {select === "comments" && <ManageComments />}
+        {select === "feedbacks" && <ManageFeedbacks />}
       </div>
     </div>
   );
